@@ -274,10 +274,17 @@ func (desc TLBFieldsDesc) FromCell(c *cell.Cell) (any, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "creating struct")
 	}
+
+	fmt.Println(tlb.LoadFromCell(parsed, c.BeginParse()))
+
 	if err := tlb.LoadFromCell(parsed, c.BeginParse()); err == nil {
+
 		return parsed, nil
 	}
-	if !strings.Contains(err.Error(), "not enough data in reader") && !strings.Contains(err.Error(), "no more refs exists") {
+
+	fmt.Println(parsed)
+	if !strings.Contains(err.Error(), "not enough data in reader") &&
+		!strings.Contains(err.Error(), "no more refs exists") {
 		return nil, errors.Wrap(err, "load from cell")
 	}
 
@@ -310,6 +317,18 @@ func operationID(t reflect.Type) (uint32, error) {
 	}
 
 	return uint32(opValue), nil
+}
+
+func NewStructDesc(x any) (TLBFieldsDesc, error) {
+	rv := reflect.ValueOf(x)
+
+	if rv.Kind() != reflect.Pointer {
+		return nil, fmt.Errorf("x should be a pointer")
+	}
+
+	t := rv.Type().Elem()
+
+	return tlbMakeDesc(t)
 }
 
 func NewOperationDesc(x any) (*OperationDesc, error) {

@@ -1,5 +1,7 @@
 package main
 
+//#cgo  LDFLAGS:  -L /Users/tsemenyuk/dev/@tsunami/@ton/anton/ton/ton-build/emulator  -Wl,-rpath,/Users/tsemenyuk/dev/@tsunami/@ton/anton/ton/ton-build/emulator  -l emulator
+import "C"
 import (
 	"os"
 

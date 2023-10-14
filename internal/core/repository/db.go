@@ -25,7 +25,7 @@ func (db *DB) Close() {
 func ConnectDB(ctx context.Context, dsnCH, dsnPG string, opts ...ch.Option) (*DB, error) {
 	var err error
 
-	opts = append(opts, ch.WithDSN(dsnCH), ch.WithAutoCreateDatabase(true), ch.WithPoolSize(16))
+	opts = append(opts, ch.WithDSN(dsnCH), ch.WithAutoCreateDatabase(true), ch.WithPoolSize(16), ch.WithInsecure(true))
 	chDB := ch.Connect(opts...)
 
 	for i := 0; i < 8; i++ { // wait for ch start
