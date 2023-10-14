@@ -330,6 +330,18 @@ func operationID(t reflect.Type) (uint32, error) {
 	return uint32(opValue), nil
 }
 
+func NewStructDesc(x any) (TLBFieldsDesc, error) {
+	rv := reflect.ValueOf(x)
+
+	if rv.Kind() != reflect.Pointer {
+		return nil, fmt.Errorf("x should be a pointer")
+	}
+
+	t := rv.Type().Elem()
+
+	return tlbMakeDesc(t)
+}
+
 func NewOperationDesc(x any) (*OperationDesc, error) {
 	var ret OperationDesc
 

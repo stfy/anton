@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/tonkeeper/tongo/ton"
 	"github.com/tonkeeper/tongo/txemulator"
 	"math/big"
@@ -251,6 +252,8 @@ func vmMakeValue(v *VmValue) (ret tlb.VmStackValue, _ error) {
 		return vmMakeValueSlice(v)
 
 	default:
+		panic(fmt.Errorf("unsupported '%s' type", v.StackType))
+
 		return ret, fmt.Errorf("unsupported '%s' type", v.StackType)
 	}
 }
@@ -426,14 +429,13 @@ func vmParseValue(v *tlb.VmStackValue, d *VmValueDesc) (any, error) {
 	switch d.StackType {
 	case "int":
 		return vmParseValueInt(v, d)
-
 	case "cell":
 		return vmParseValueCell(v, d)
-
 	case "slice":
 		return vmParseValueSlice(v, d)
 
 	default:
+
 		return nil, fmt.Errorf("unsupported '%s' type", d.StackType)
 	}
 }
@@ -461,8 +463,14 @@ func (e *Emulator) RunGetMethod(ctx context.Context, method string, args VmStack
 	}
 
 	for i := range retDesc {
+
 		r, err := vmParseValue(&stk[i], &retDesc[i])
+
 		if err != nil {
+			spew.Dump(method)
+
+			panic(err)
+
 			return nil, err
 		}
 		ret = append(ret, VmValue{VmValueDesc: retDesc[i], Payload: r})
