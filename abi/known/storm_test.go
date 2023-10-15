@@ -1,8 +1,9 @@
 package known_test
 
 import (
-	"encoding/hex"
-	"github.com/davecgh/go-spew/spew"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/require"
 	"github.com/tonindexer/anton/abi"
 	"github.com/xssnick/tonutils-go/address"
@@ -97,6 +98,58 @@ type ReferralData struct {
 	Rebate   uint64           `tlb:"## 32" json:"rebate"`
 }
 
+//{
+//        "name": "get_manager_data",
+//        "return_values": [
+//          {
+//            "name": "trader_address",
+//            "stack_type": "slice",
+//            "format": "addr"
+//          },
+//          {
+//            "name": "vault_address",
+//            "stack_type": "slice",
+//            "format": "addr"
+//          },
+//          {
+//            "name": "amm_address",
+//            "stack_type": "slice",
+//            "format": "addr"
+//          },
+//          {
+//            "name": "long",
+//            "stack_type": "cell",
+//            "format": "position_record"
+//          },
+//          {
+//            "name": "short",
+//            "stack_type": "cell",
+//            "format": "position_record"
+//          },
+//          {
+//            "name": "orders_dict",
+//            "stack_type": "cell",
+//            "format": "struct",
+//            "struct_fields": [
+//              {
+//                "name": "orders",
+//                "tlb_type": ".",
+//                "format": "orders"
+//              }
+//            ]
+//          },
+//          {
+//            "name": "referral_data",
+//            "stack_type": "cell",
+//            "format": "referral_data"
+//          },
+//          {
+//            "name": "orders_bitset",
+//            "stack_type": "int"
+//          }
+//        ]
+//      },
+
 func Test_AmmStateDesc(t *testing.T) {
 	//showDesc := func(anyStruct any) {
 	//	desc, err := abi.NewStructDesc(anyStruct)
@@ -121,7 +174,7 @@ func Test_AmmStateDesc(t *testing.T) {
 	//}
 
 	pm := PositionManagerData{}
-	pmBoc, err := hex.DecodeString("b5ee9c720101040100b60002cb80034f2cc4318d1641d046fb9ff40f21a22b89a9880c53ae4fd2ee8447932e1a6d30028a7a97a14d74b72496617f74ee195ac2aba0ddb6feabfe7110e12152b434e092006a90986aa8ad1b1651f21e767043ab59823956294ce6497948dde69ff73a8f4957fc0102010b1fe000000008030011000000000000000020006b00000000000000000000074bc6e9726f300ba545d90ceb074755149d7c8000000000000000000927c000000000000000003293e7c540")
+	pmBoc, err := base64.StdEncoding.DecodeString("te6cckEBBAEAmAACy4ADTyzEMY0WQdBG+5/0DyGiK4mpiAxTrk/S7oRHky4abTAAkBq1xiMkjUf+ihMTkGPPkcuJKG4Zq//w/CZdH9ICW44AfrdvctSRVoEVKAmIlM7VXnbnIXSX43ZXR+0iwvc1cWsf9AECABEAAAAAAAAAACABAdwDADkmUuYR4oukO3QAAAAAASoF8gAAIBfXhAIC+vCAQGSFr0Q=")
 	require.Nil(t, err)
 
 	c, err := cell.FromBOC(pmBoc)
@@ -131,5 +184,9 @@ func Test_AmmStateDesc(t *testing.T) {
 
 	require.Nil(t, err)
 
-	spew.Dump(pm)
+	res, err := json.Marshal(pm)
+
+	fmt.Println(err)
+
+	fmt.Println(string(res))
 }

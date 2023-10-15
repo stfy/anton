@@ -3,6 +3,7 @@ package indexer
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/pkg/errors"
@@ -29,6 +30,8 @@ func (s *Service) insertData(
 		_ = dbTx.Rollback()
 	}()
 
+	parsedMessages := make([]*core.Message, 0)
+
 	for _, message := range msg {
 		err := s.Parser.ParseMessagePayload(ctx, message)
 		if errors.Is(err, app.ErrImpossibleParsing) {
@@ -44,7 +47,13 @@ func (s *Service) insertData(
 				Uint32("op_id", message.OperationID).
 				Msg("parse message payload")
 		}
+
+		parsedMessages = append(parsedMessages, message)
 	}
+
+	sort.Slice(parsedMessages, func(i, j int) bool {
+		return parsedMessages[i].CreatedLT < parsedMessages[j].CreatedLT
+	})
 
 	if err := func() error {
 		defer app.TimeTrack(time.Now(), "AddAccountStates(%d)", len(acc))
@@ -72,6 +81,13 @@ func (s *Service) insertData(
 		return s.blockRepo.AddBlocks(ctx, dbTx, b)
 	}(); err != nil {
 		return errors.Wrap(err, "add blocks")
+	}
+
+	if err := func() error {
+		defer app.TimeTrack(time.Now(), "NotifyMessages(%d)", len(parsedMessages))
+		return s.Notifier.NotifyMessages(context.Background(), parsedMessages)
+	}(); err != nil {
+		return errors.Wrap(err, "notify messages")
 	}
 
 	if err := dbTx.Commit(); err != nil {

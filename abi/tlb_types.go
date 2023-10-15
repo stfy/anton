@@ -1,6 +1,7 @@
 package abi
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -99,8 +100,75 @@ type StopOrderData struct {
 	TriggerPrice *tlb.Coins `tlb:"." json:"limit_price"`
 }
 
+type AnyOrder interface {
+	AsStopOrder() *StopOrderData
+	AsLimitOrder() *LimitOrderData
+}
+
+type OrderType int
+
+const (
+	StopOrderType OrderType = iota
+	TakeOrderType
+	LimitOrderType
+	MarketOrderType
+)
+
+func (t OrderType) String() string {
+	switch t {
+	case StopOrderType:
+		return "stopLoss"
+	case TakeOrderType:
+		return "takeProfit"
+	case LimitOrderType:
+		return "limit"
+	case MarketOrderType:
+		return "market"
+	}
+
+	panic("unknown order type")
+}
+
 type Order struct {
-	Value any `tlb:"[StopOrder,TakeOrder,LimitOrder,MarketOrder]"`
+	Value AnyOrder `tlb:"[StopOrder,TakeOrder,LimitOrder,MarketOrder]"`
+}
+
+func (o Order) GetType() OrderType {
+	switch o.Value.(type) {
+	case StopOrder, *StopOrder:
+		return StopOrderType
+	case TakeOrder, *TakeOrder:
+		return TakeOrderType
+	case LimitOrder, *LimitOrder:
+		return LimitOrderType
+	case MarketOrder, *MarketOrder:
+		return MarketOrderType
+	}
+
+	panic("unexpected order type")
+}
+
+func (o Order) MarshalJSON() ([]byte, error) {
+	switch o.GetType() {
+	case LimitOrderType, MarketOrderType:
+		return json.Marshal(struct {
+			*LimitOrderData
+			Type any `json:"type"`
+		}{
+			Type:           o.GetType(),
+			LimitOrderData: o.Value.AsLimitOrder(),
+		})
+	case StopOrderType, TakeOrderType:
+		return json.Marshal(struct {
+			*StopOrderData
+			Type any `json:"type"`
+		}{
+			Type:          o.GetType(),
+			StopOrderData: o.Value.AsStopOrder(),
+		})
+	}
+
+	return nil, nil
 }
 
 type StopOrder struct {
@@ -108,9 +176,25 @@ type StopOrder struct {
 	Payload StopOrderData `tlb:"."`
 }
 
+func (s StopOrder) AsStopOrder() *StopOrderData {
+	return &s.Payload
+}
+
+func (s StopOrder) AsLimitOrder() *LimitOrderData {
+	return nil
+}
+
 type TakeOrder struct {
 	_       tlb.Magic     `tlb:"$0001"`
 	Payload StopOrderData `tlb:"."`
+}
+
+func (s TakeOrder) AsStopOrder() *StopOrderData {
+	return &s.Payload
+}
+
+func (s TakeOrder) AsLimitOrder() *LimitOrderData {
+	return nil
 }
 
 type LimitOrder struct {
@@ -118,9 +202,25 @@ type LimitOrder struct {
 	Payload LimitOrderData `tlb:"."`
 }
 
+func (s LimitOrder) AsStopOrder() *StopOrderData {
+	return nil
+}
+
+func (s LimitOrder) AsLimitOrder() *LimitOrderData {
+	return &s.Payload
+}
+
 type MarketOrder struct {
 	_       tlb.Magic      `tlb:"$0011"`
 	Payload LimitOrderData `tlb:"."`
+}
+
+func (s MarketOrder) AsStopOrder() *StopOrderData {
+	return nil
+}
+
+func (s MarketOrder) AsLimitOrder() *LimitOrderData {
+	return &s.Payload
 }
 
 type Orders map[int]Order
@@ -149,7 +249,7 @@ func (o *Orders) LoadFromCell(loader *cell.Slice) error {
 			return err
 		}
 
-		if err = tlb.LoadFromCell(v, ref); err != nil {
+		if err = tlb.LoadFromCell(&v, ref); err != nil {
 			return err
 		}
 

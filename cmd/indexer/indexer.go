@@ -2,16 +2,17 @@ package indexer
 
 import (
 	"fmt"
+	"github.com/allisson/go-env"
+	"github.com/pkg/errors"
+	"github.com/tonindexer/anton/internal/app/notifier"
+	"github.com/twmb/franz-go/pkg/kgo"
+	"github.com/urfave/cli/v2"
+	"github.com/xssnick/tonutils-go/liteclient"
+	"github.com/xssnick/tonutils-go/ton"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
-
-	"github.com/allisson/go-env"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
-	"github.com/xssnick/tonutils-go/liteclient"
-	"github.com/xssnick/tonutils-go/ton"
 
 	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/internal/app"
@@ -30,6 +31,13 @@ var Command = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		chURL := env.GetString("DB_CH_URL", "")
 		pgURL := env.GetString("DB_PG_URL", "")
+
+		brokerSeeds := env.GetStringSlice("BROKER_URL", ",", []string{"5.161.58.63:9092"})
+
+		cl, err := kgo.NewClient(
+			kgo.SeedBrokers(brokerSeeds...),
+			kgo.AllowAutoTopicCreation(),
+		)
 
 		conn, err := repository.ConnectDB(ctx.Context, chURL, pgURL)
 		if err != nil {
@@ -87,6 +95,7 @@ var Command = &cli.Command{
 			Fetcher:   f,
 			FromBlock: uint32(env.GetInt32("FROM_BLOCK", 1)),
 			Workers:   env.GetInt("WORKERS", 4),
+			Notifier:  notifier.NewKafkaNotifier(&notifier.KafkaConfig{Client: cl}),
 		})
 		if err = i.Start(); err != nil {
 			return err

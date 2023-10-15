@@ -11,8 +11,9 @@ type IndexerConfig struct {
 
 	API ton.APIClientWrapped
 
-	Fetcher FetcherService
-	Parser  ParserService
+	Fetcher  FetcherService
+	Parser   ParserService
+	Notifier NotifierService
 
 	FromBlock uint32
 	Workers   int
