@@ -1126,57 +1126,6 @@
     ],
     "get_methods": [
       {
-        "name": "get_manager_data",
-        "return_values": [
-          {
-            "name": "trader_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "vault_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "amm_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "long",
-            "stack_type": "cell",
-            "format": "position_record"
-          },
-          {
-            "name": "short",
-            "stack_type": "cell",
-            "format": "position_record"
-          },
-          {
-            "name": "orders_dict",
-            "stack_type": "cell",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "orders",
-                "tlb_type": ".",
-                "format": "orders"
-              }
-            ]
-          },
-          {
-            "name": "referral_data",
-            "stack_type": "cell",
-            "format": "referral_data"
-          },
-          {
-            "name": "orders_bitset",
-            "stack_type": "int"
-          }
-        ]
-      },
-      {
         "name": "get_position_manager_contract_data",
         "return_values": [
           {
@@ -1213,6 +1162,16 @@
                 "name": "referral_data",
                 "tlb_type": "maybe ^",
                 "format": "referral_data"
+              },
+              {
+                "name": "orders",
+                "tlb_type": ".",
+                "format": "orders"
+              },
+              {
+                "name": "orders_bitset",
+                "tlb_type": "## 8",
+                "format": "uint32"
               }
             ]
           }
