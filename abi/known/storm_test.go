@@ -1,12 +1,13 @@
 package known_test
 
 import (
-	"encoding/json"
-	"fmt"
+	"encoding/hex"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
 	"github.com/tonindexer/anton/abi"
 	"github.com/xssnick/tonutils-go/address"
 	"github.com/xssnick/tonutils-go/tlb"
+	"github.com/xssnick/tonutils-go/tvm/cell"
 	"math/big"
 	"testing"
 )
@@ -65,7 +66,7 @@ type PositionManagerData struct {
 	Long          *PositionRecord  `tlb:"maybe ^" json:"long"`
 	Short         *PositionRecord  `tlb:"maybe ^" json:"short"`
 	ReferralData  *ReferralData    `tlb:"maybe ^" json:"referral_data"`
-	LimitOrders   *abi.Orders      `tlb:"orders" json:"limit_orders"`
+	LimitOrders   *abi.Orders      `tlb:"." json:"limit_orders"`
 	OrdersBitset  uint32           `tlb:"## 8" json:"limit_orders_bitset"`
 }
 
@@ -97,25 +98,38 @@ type ReferralData struct {
 }
 
 func Test_AmmStateDesc(t *testing.T) {
-	showDesc := func(anyStruct any) {
-		desc, err := abi.NewStructDesc(anyStruct)
-		require.Nil(t, err)
+	//showDesc := func(anyStruct any) {
+	//	desc, err := abi.NewStructDesc(anyStruct)
+	//	require.Nil(t, err)
+	//
+	//	res, err := json.Marshal(desc)
+	//	require.Nil(t, err)
+	//
+	//	fmt.Println(string(res))
+	//}
+	//
+	//structs := []any{
+	//	//(*AmmState)(nil),
+	//	//(*ExchangeSettings)(nil),
+	//	//(*AmmData)(nil),
+	//	//
+	//	(*PositionManagerData)(nil),
+	//}
+	//
+	//for _, str := range structs {
+	//	showDesc(str)
+	//}
 
-		res, err := json.Marshal(desc)
-		require.Nil(t, err)
+	pm := PositionManagerData{}
+	pmBoc, err := hex.DecodeString("b5ee9c720101040100b60002cb80034f2cc4318d1641d046fb9ff40f21a22b89a9880c53ae4fd2ee8447932e1a6d30028a7a97a14d74b72496617f74ee195ac2aba0ddb6feabfe7110e12152b434e092006a90986aa8ad1b1651f21e767043ab59823956294ce6497948dde69ff73a8f4957fc0102010b1fe000000008030011000000000000000020006b00000000000000000000074bc6e9726f300ba545d90ceb074755149d7c8000000000000000000927c000000000000000003293e7c540")
+	require.Nil(t, err)
 
-		fmt.Println(string(res))
-	}
+	c, err := cell.FromBOC(pmBoc)
+	require.Nil(t, err)
 
-	structs := []any{
-		//(*AmmState)(nil),
-		//(*ExchangeSettings)(nil),
-		//(*AmmData)(nil),
-		//
-		(*PositionManagerData)(nil),
-	}
+	err = tlb.LoadFromCell(&pm, c.BeginParse())
 
-	for _, str := range structs {
-		showDesc(str)
-	}
+	require.Nil(t, err)
+
+	spew.Dump(pm)
 }

@@ -764,6 +764,186 @@
   },
   {
     "interface_name": "position_manager",
+    "definitions": {
+      "amm_change": [
+        {
+          "name": "quote_asset_reserve",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "quote_asset_reserve_weight",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "base_asset_reserve",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "total_long_position_size",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "total_short_position_size",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_interest_long",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_interest_short",
+          "tlb_type": ".",
+          "format": "coins"
+        }
+      ],
+      "position_change": [
+        {
+          "name": "size",
+          "tlb_type": "## 128",
+          "format": "bigInt"
+        },
+        {
+          "name": "direction",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "margin",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "last_updated_cumulative_premium",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        }
+      ],
+      "referral_data": [
+        {
+          "name": "address",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32"
+        }
+      ],
+      "position_state": [
+        {
+          "name": "size",
+          "tlb_type": "## 128",
+          "format": "bigInt"
+        },
+        {
+          "name": "direction",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "margin",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "last_updated_cumulative_premium",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        }
+      ],
+      "position_record": [
+        {
+          "name": "locked",
+          "tlb_type": "bool",
+          "format": "bool"
+        },
+        {
+          "name": "redirect_address",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "orders_bitset",
+          "tlb_type": "## 8",
+          "format": "uint32"
+        },
+        {
+          "name": "orders",
+          "tlb_type": ".",
+          "format": "orders"
+        },
+        {
+          "name": "locked_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "position",
+          "tlb_type": "^",
+          "format": "position_state"
+        }
+      ]
+    },
     "in_messages": [
       {
         "op_name": "position_manager::cancel_order",
@@ -834,96 +1014,12 @@
           {
             "name": "position",
             "tlb_type": "^",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "size",
-                "tlb_type": "## 128",
-                "format": "bigInt"
-              },
-              {
-                "name": "direction",
-                "tlb_type": "## 1",
-                "format": "uint8"
-              },
-              {
-                "name": "margin",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_notional",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "last_updated_cumulative_premium",
-                "tlb_type": "## 64",
-                "format": "int64"
-              },
-              {
-                "name": "fee",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "discount",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "rebate",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "last_updated_timestamp",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              }
-            ]
+            "format": "position_change"
           },
           {
             "name": "amm",
             "tlb_type": "^",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "quote_asset_reserve",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "quote_asset_reserve_weight",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "base_asset_reserve",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "total_long_position_size",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "total_short_position_size",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_interest_long",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_interest_short",
-                "tlb_type": ".",
-                "format": "coins"
-              }
-            ]
+            "format": "amm_change"
           }
         ]
       },
@@ -965,96 +1061,12 @@
           {
             "name": "position",
             "tlb_type": "^",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "size",
-                "tlb_type": "## 128",
-                "format": "bigInt"
-              },
-              {
-                "name": "direction",
-                "tlb_type": "## 1",
-                "format": "uint8"
-              },
-              {
-                "name": "margin",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_notional",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "last_updated_cumulative_premium",
-                "tlb_type": "## 64",
-                "format": "int64"
-              },
-              {
-                "name": "fee",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "discount",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "rebate",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "last_updated_timestamp",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              }
-            ]
+            "format": "position_change"
           },
           {
             "name": "amm",
             "tlb_type": "^",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "quote_asset_reserve",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "quote_asset_reserve_weight",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "base_asset_reserve",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "total_long_position_size",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "total_short_position_size",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_interest_long",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_interest_short",
-                "tlb_type": ".",
-                "format": "coins"
-              }
-            ]
+            "format": "amm_change"
           }
         ]
       },
@@ -1090,96 +1102,12 @@
           {
             "name": "position",
             "tlb_type": "^",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "size",
-                "tlb_type": "## 128",
-                "format": "bigInt"
-              },
-              {
-                "name": "direction",
-                "tlb_type": "## 1",
-                "format": "uint8"
-              },
-              {
-                "name": "margin",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_notional",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "last_updated_cumulative_premium",
-                "tlb_type": "## 64",
-                "format": "int64"
-              },
-              {
-                "name": "fee",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "discount",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "rebate",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              },
-              {
-                "name": "last_updated_timestamp",
-                "tlb_type": "## 32",
-                "format": "uint64"
-              }
-            ]
+            "format": "position_change"
           },
           {
             "name": "amm",
             "tlb_type": "^",
-            "format": "struct",
-            "struct_fields": [
-              {
-                "name": "quote_asset_reserve",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "quote_asset_reserve_weight",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "base_asset_reserve",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "total_long_position_size",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "total_short_position_size",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_interest_long",
-                "tlb_type": ".",
-                "format": "coins"
-              },
-              {
-                "name": "open_interest_short",
-                "tlb_type": ".",
-                "format": "coins"
-              }
-            ]
+            "format": "amm_change"
           }
         ]
       }
@@ -1197,6 +1125,57 @@
       }
     ],
     "get_methods": [
+      {
+        "name": "get_manager_data",
+        "return_values": [
+          {
+            "name": "trader_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "vault_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "amm_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "long",
+            "stack_type": "cell",
+            "format": "position_record"
+          },
+          {
+            "name": "short",
+            "stack_type": "cell",
+            "format": "position_record"
+          },
+          {
+            "name": "orders_dict",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "orders",
+                "tlb_type": ".",
+                "format": "orders"
+              }
+            ]
+          },
+          {
+            "name": "referral_data",
+            "stack_type": "cell",
+            "format": "referral_data"
+          },
+          {
+            "name": "orders_bitset",
+            "stack_type": "int"
+          }
+        ]
+      },
       {
         "name": "get_position_manager_contract_data",
         "return_values": [
@@ -1223,88 +1202,359 @@
               {
                 "name": "long",
                 "tlb_type": "maybe ^",
-                "format": "struct",
-                "struct_fields": [
-                  {
-                    "name": "locked",
-                    "tlb_type": "bool",
-                    "format": "bool"
-                  },
-                  {
-                    "name": "redirect_address",
-                    "tlb_type": "addr",
-                    "format": "addr"
-                  },
-                  {
-                    "name": "orders_bitset",
-                    "tlb_type": "## 8",
-                    "format": "uint32"
-                  },
-                  {
-                    "name": "orders",
-                    "tlb_type": ".",
-                    "format": "orders"
-                  },
-                  {
-                    "name": "locked_timestamp",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                  },
-                  {
-                    "name": "position",
-                    "tlb_type": "^",
-                    "format": "struct",
-                    "struct_fields": [
-                      {
-                        "name": "size",
-                        "tlb_type": "## 128",
-                        "format": "bigInt"
-                      },
-                      {
-                        "name": "direction",
-                        "tlb_type": "## 1",
-                        "format": "uint8"
-                      },
-                      {
-                        "name": "margin",
-                        "tlb_type": ".",
-                        "format": "coins"
-                      },
-                      {
-                        "name": "open_notional",
-                        "tlb_type": ".",
-                        "format": "coins"
-                      },
-                      {
-                        "name": "last_updated_cumulative_premium",
-                        "tlb_type": "## 64",
-                        "format": "int64"
-                      },
-                      {
-                        "name": "fee",
-                        "tlb_type": "## 32",
-                        "format": "uint64"
-                      },
-                      {
-                        "name": "discount",
-                        "tlb_type": "## 32",
-                        "format": "uint64"
-                      },
-                      {
-                        "name": "rebate",
-                        "tlb_type": "## 32",
-                        "format": "uint64"
-                      },
-                      {
-                        "name": "last_updated_timestamp",
-                        "tlb_type": "## 32",
-                        "format": "uint64"
-                      }
-                    ]
-                  }
-                ]
+                "format": "position_record"
+              },
+              {
+                "name": "short",
+                "tlb_type": "maybe ^",
+                "format": "position_record"
+              },
+              {
+                "name": "referral_data",
+                "tlb_type": "maybe ^",
+                "format": "referral_data"
               }
             ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "vault_liquidity_provider",
+    "get_methods": [
+      {
+        "name": "get_lp_minter_address",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_wallet_data",
+        "return_values": [
+          {
+            "name": "balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "owner_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "jetton_master_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "jetton_wallet_code",
+            "stack_type": "cell"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "referral",
+    "in_messages": [
+      {
+        "op_name": "nft_item_transfer",
+        "op_code": "0x5fcc3d14",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "new_owner",
+            "tlb_type": "addr"
+          },
+          {
+            "name": "response_destination",
+            "tlb_type": "addr"
+          },
+          {
+            "name": "custom_payload",
+            "tlb_type": "maybe ^",
+            "optional": true
+          },
+          {
+            "name": "forward_amount",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
+            "name": "forward_payload",
+            "tlb_type": "either . ^",
+            "format": "cell",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "op_name": "nft_item_get_static_data",
+        "op_code": "0x2fcb26a2",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          }
+        ]
+      }
+    ],
+    "out_messages": [
+      {
+        "op_name": "nft_item_ownership_assigned",
+        "op_code": "0x05138d91",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "prev_owner",
+            "tlb_type": "addr"
+          },
+          {
+            "name": "forward_payload",
+            "tlb_type": "either . ^",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "op_name": "excesses",
+        "op_code": "0xd53276db",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          }
+        ]
+      },
+      {
+        "op_name": "nft_item_report_static_data",
+        "op_code": "0x8b771735",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "index",
+            "tlb_type": "## 256"
+          },
+          {
+            "name": "collection",
+            "tlb_type": "addr"
+          }
+        ]
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_nft_data",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "init",
+            "stack_type": "int",
+            "format": "bool"
+          },
+          {
+            "name": "index",
+            "stack_type": "int"
+          },
+          {
+            "name": "collection_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "owner_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "individual_content",
+            "stack_type": "cell"
+          }
+        ]
+      },
+      {
+        "name": "get_referral_data",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "vault_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "amount",
+            "stack_type": "int"
+          },
+          {
+            "name": "referral_type",
+            "stack_type": "int"
+          },
+          {
+            "name": "discount",
+            "stack_type": "int"
+          },
+          {
+            "name": "rebate",
+            "stack_type": "int"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "executor",
+    "in_messages": [
+      {
+        "op_name": "nft_item_transfer",
+        "op_code": "0x5fcc3d14",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "new_owner",
+            "tlb_type": "addr"
+          },
+          {
+            "name": "response_destination",
+            "tlb_type": "addr"
+          },
+          {
+            "name": "custom_payload",
+            "tlb_type": "maybe ^",
+            "optional": true
+          },
+          {
+            "name": "forward_amount",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
+            "name": "forward_payload",
+            "tlb_type": "either . ^",
+            "format": "cell",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "op_name": "nft_item_get_static_data",
+        "op_code": "0x2fcb26a2",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          }
+        ]
+      }
+    ],
+    "out_messages": [
+      {
+        "op_name": "nft_item_ownership_assigned",
+        "op_code": "0x05138d91",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "prev_owner",
+            "tlb_type": "addr"
+          },
+          {
+            "name": "forward_payload",
+            "tlb_type": "either . ^",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "op_name": "excesses",
+        "op_code": "0xd53276db",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          }
+        ]
+      },
+      {
+        "op_name": "nft_item_report_static_data",
+        "op_code": "0x8b771735",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "index",
+            "tlb_type": "## 256"
+          },
+          {
+            "name": "collection",
+            "tlb_type": "addr"
+          }
+        ]
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_nft_data",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "init",
+            "stack_type": "int",
+            "format": "bool"
+          },
+          {
+            "name": "index",
+            "stack_type": "int"
+          },
+          {
+            "name": "collection_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "owner_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "individual_content",
+            "stack_type": "cell"
+          }
+        ]
+      },
+      {
+        "name": "get_executor_data",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "vault_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "executor_amount",
+            "stack_type": "int"
           }
         ]
       }

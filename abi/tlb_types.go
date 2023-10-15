@@ -12,6 +12,13 @@ import (
 	"github.com/xssnick/tonutils-go/tvm/cell"
 )
 
+func init() {
+	tlb.Register(MarketOrder{})
+	tlb.Register(LimitOrder{})
+	tlb.Register(StopOrder{})
+	tlb.Register(TakeOrder{})
+}
+
 type TLBType string
 
 const (
@@ -116,21 +123,16 @@ type MarketOrder struct {
 	Payload LimitOrderData `tlb:"."`
 }
 
-type Orders struct {
-	List map[int]Order `json:"list"`
-}
+type Orders map[int]Order
 
 func (o *Orders) LoadFromCell(loader *cell.Slice) error {
-
-	d, err := loader.ToDict(4)
+	d, err := loader.LoadDict(3)
 
 	if err != nil {
 		return err
 	}
 
 	ret := map[int]Order{}
-
-	fmt.Println("LOAD ORDERS", ret)
 
 	for _, item := range d.All() {
 		v := Order{}
@@ -147,16 +149,14 @@ func (o *Orders) LoadFromCell(loader *cell.Slice) error {
 			return err
 		}
 
-		if err = tlb.LoadFromCell(&v, ref); err != nil {
+		if err = tlb.LoadFromCell(v, ref); err != nil {
 			return err
 		}
 
 		ret[int(key)] = v
 	}
 
-	fmt.Println("LOAD ORDERS", ret)
-
-	o.List = ret
+	*o = ret
 
 	return nil
 }
