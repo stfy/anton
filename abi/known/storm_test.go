@@ -64,10 +64,10 @@ type PositionManagerData struct {
 	TraderAddress *address.Address `tlb:"addr" json:"trader_address"`
 	VaultAddress  *address.Address `tlb:"addr" json:"vault_address"`
 	AmmAddress    *address.Address `tlb:"addr" json:"amm_address"`
-	Long          *PositionRecord  `tlb:"maybe ^" json:"long"`
-	Short         *PositionRecord  `tlb:"maybe ^" json:"short"`
-	ReferralData  *ReferralData    `tlb:"maybe ^" json:"referral_data"`
-	LimitOrders   *abi.Orders      `tlb:"." json:"limit_orders"`
+	Long          *cell.Cell       `tlb:"maybe ^" json:"long"`
+	Short         *cell.Cell       `tlb:"maybe ^" json:"short"`
+	ReferralData  *cell.Cell       `tlb:"maybe ^" json:"referral_data"`
+	LimitOrders   *cell.Dictionary `tlb:"dict" json:"limit_orders"`
 	OrdersBitset  uint32           `tlb:"## 8" json:"limit_orders_bitset"`
 }
 

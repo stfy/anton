@@ -342,7 +342,7 @@
         "body": [
           {
             "name": "origin_opcode",
-            "tlb_type": "## 32",
+            "tlb_type": ".",
             "format": "opcode"
           }
         ]
@@ -946,6 +946,29 @@
     },
     "in_messages": [
       {
+        "op_name": "take_referral_fees",
+        "op_code": "0x12d9601d",
+        "body": [
+          {
+            "name": "referral_fees",
+            "tlb_type": "^",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "discount",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "rebate",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "op_name": "position_manager::cancel_order",
         "op_code": "0x67134629",
         "body": [
@@ -1221,6 +1244,22 @@
     "interface_name": "referral",
     "in_messages": [
       {
+        "op_name": "add_referral_amount",
+        "op_code": "0x84dced7a",
+        "body": [
+          {
+            "name": "referral_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "origin_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
         "op_name": "nft_item_transfer",
         "op_code": "0x5fcc3d14",
         "body": [
@@ -1377,6 +1416,22 @@
   {
     "interface_name": "executor",
     "in_messages": [
+      {
+        "op_name": "add_executor_amount",
+        "op_code": "0x5dd66579",
+        "body": [
+          {
+            "name": "referral_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "origin_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
       {
         "op_name": "nft_item_transfer",
         "op_code": "0x5fcc3d14",

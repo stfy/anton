@@ -68,8 +68,6 @@ github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/iam047801/go-clickhouse v0.0.0-20230531081532-4d11768422f0 h1:0/RkLzp6whu/zFCBlEgQyAkbj4QbOlObn8jYQuhm4vg=
 github.com/iam047801/go-clickhouse v0.0.0-20230531081532-4d11768422f0/go.mod h1:ZkFYp+b3tn7YiHR6yMnHqGetPfFZhbVYVTsTGBIbdCY=
-github.com/iam047801/tonutils-go v0.0.0-20231015152158-8d07daf52f7a h1:sMViB3ah4Qx0d/13rQIeORK0c4AlR3YKzt2Eukvltbc=
-github.com/iam047801/tonutils-go v0.0.0-20231015152158-8d07daf52f7a/go.mod h1:rqfQ4jsLaFhUUvouz2hTTC02nQGszOhSps7tGAKRC8g=
 github.com/iancoleman/strcase v0.2.0 h1:05I4QRnGpI0m37iZQRuskXh+w77mr6Z41lwQzuHLwW0=
 github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
