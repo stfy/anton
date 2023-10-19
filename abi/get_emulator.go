@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/tonkeeper/tongo/ton"
 	"github.com/tonkeeper/tongo/txemulator"
 	"math/big"
@@ -463,14 +462,9 @@ func (e *Emulator) RunGetMethod(ctx context.Context, method string, args VmStack
 	}
 
 	for i := range retDesc {
-
 		r, err := vmParseValue(&stk[i], &retDesc[i])
 
 		if err != nil {
-			spew.Dump(method)
-
-			panic(err)
-
 			return nil, err
 		}
 		ret = append(ret, VmValue{VmValueDesc: retDesc[i], Payload: r})

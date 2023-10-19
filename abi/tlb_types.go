@@ -261,32 +261,70 @@ func (o *Orders) LoadFromCell(loader *cell.Slice) error {
 	return nil
 }
 
+type NftBalancesHashMap struct {
+	Value map[*address.Address]uint64
+}
+
+func (hm *NftBalancesHashMap) MarshalJSON() ([]byte, error) {
+	ret := map[string]uint64{}
+
+	for k, v := range hm.Value {
+		ret[k.String()] = v
+	}
+
+	return json.Marshal(ret)
+}
+
+func (hm *NftBalancesHashMap) LoadFromCell(loader *cell.Slice) error {
+	d, err := loader.ToDict(256)
+
+	if err != nil {
+		return err
+	}
+
+	ret := make(map[*address.Address]uint64)
+
+	for _, kv := range d.All() {
+		k := kv.Key.BeginParse().MustLoadSlice(256)
+
+		addr := address.NewAddress(0, 0, k)
+		v := kv.Value.BeginParse().MustLoadCoins()
+
+		ret[addr] = v
+	}
+
+	hm.Value = ret
+
+	return nil
+}
+
 var (
 	typeNameRMap = map[reflect.Type]TLBType{
 		reflect.TypeOf([]uint8{}): TLBBytes,
 	}
 	typeNameMap = map[TLBType]reflect.Type{
-		TLBBool:        reflect.TypeOf(false),
-		"int8":         reflect.TypeOf(int8(0)),
-		"int16":        reflect.TypeOf(int16(0)),
-		"int32":        reflect.TypeOf(int32(0)),
-		"int64":        reflect.TypeOf(int64(0)),
-		"uint8":        reflect.TypeOf(uint8(0)),
-		"uint16":       reflect.TypeOf(uint16(0)),
-		"uint32":       reflect.TypeOf(uint32(0)),
-		"uint64":       reflect.TypeOf(uint64(0)),
-		TLBBytes:       reflect.TypeOf([]byte{}),
-		TLBBigInt:      reflect.TypeOf(big.NewInt(0)),
-		TLBCell:        reflect.TypeOf((*cell.Cell)(nil)),
-		"dict":         reflect.TypeOf((*cell.Dictionary)(nil)),
-		TLBTag:         reflect.TypeOf(tlb.Magic{}),
-		"opcode":       reflect.TypeOf((*Opcode)(nil)),
-		"coins":        reflect.TypeOf(tlb.Coins{}),
-		TLBAddr:        reflect.TypeOf((*address.Address)(nil)),
-		TLBString:      reflect.TypeOf((*StringSnake)(nil)),
-		"telemintText": reflect.TypeOf((*TelemintText)(nil)),
-		"order":        reflect.TypeOf((*Order)(nil)),
-		"orders":       reflect.TypeOf((*Orders)(nil)),
+		TLBBool:                reflect.TypeOf(false),
+		"int8":                 reflect.TypeOf(int8(0)),
+		"int16":                reflect.TypeOf(int16(0)),
+		"int32":                reflect.TypeOf(int32(0)),
+		"int64":                reflect.TypeOf(int64(0)),
+		"uint8":                reflect.TypeOf(uint8(0)),
+		"uint16":               reflect.TypeOf(uint16(0)),
+		"uint32":               reflect.TypeOf(uint32(0)),
+		"uint64":               reflect.TypeOf(uint64(0)),
+		TLBBytes:               reflect.TypeOf([]byte{}),
+		TLBBigInt:              reflect.TypeOf(big.NewInt(0)),
+		TLBCell:                reflect.TypeOf((*cell.Cell)(nil)),
+		"dict":                 reflect.TypeOf((*cell.Dictionary)(nil)),
+		TLBTag:                 reflect.TypeOf(tlb.Magic{}),
+		"opcode":               reflect.TypeOf((*Opcode)(nil)),
+		"coins":                reflect.TypeOf(tlb.Coins{}),
+		TLBAddr:                reflect.TypeOf((*address.Address)(nil)),
+		TLBString:              reflect.TypeOf((*StringSnake)(nil)),
+		"telemintText":         reflect.TypeOf((*TelemintText)(nil)),
+		"order":                reflect.TypeOf((*Order)(nil)),
+		"orders":               reflect.TypeOf((*Orders)(nil)),
+		"nft_balances_hashmap": reflect.TypeOf((*NftBalancesHashMap)(nil)),
 	}
 
 	registeredDefinitions = map[TLBType]TLBFieldsDesc{}

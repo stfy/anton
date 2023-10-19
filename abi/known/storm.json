@@ -193,6 +193,28 @@
     ],
     "get_methods": [
       {
+        "name": "get_executor_collection_address",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_referral_collection_address",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
         "name": "get_vault_contract_data",
         "return_values": [
           {
@@ -248,7 +270,7 @@
         ]
       },
       {
-        "name": "get_lp_minter_addr",
+        "name": "get_lp_minter_address",
         "return_values": [
           {
             "name": "data",
@@ -1241,8 +1263,89 @@
     ]
   },
   {
+    "interface_name": "executor_collection",
+    "get_methods": [
+      {
+        "name": "get_executor_vaults_whitelist",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "balances_dict",
+            "stack_type": "cell",
+            "format": "nft_balances_hashmap"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "referral_collection",
+    "get_methods": [
+      {
+        "name": "get_referral_vaults_whitelist",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "balances_dict",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "nft_balances",
+                "tlb_type": ".",
+                "format": "nft_balances_hashmap"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "interface_name": "referral",
     "in_messages": [
+      {
+        "op_name": "mint_referral",
+        "op_code": "0xcb4ddc3c",
+        "body": [
+          {
+            "name": "nft_owner",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "ref_type",
+            "tlb_type": "## 2"
+          },
+          {
+            "name": "redirect_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "parameters",
+            "tlb_type": "^",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "discount",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "rebate",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              }
+            ]
+          },
+          {
+            "name": "balances_dict",
+            "tlb_type": ".",
+            "format": "nft_balances_hashmap"
+          }
+        ]
+      },
       {
         "op_name": "add_referral_amount",
         "op_code": "0x84dced7a",
@@ -1389,15 +1492,6 @@
         "arguments": [],
         "return_values": [
           {
-            "name": "vault_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "amount",
-            "stack_type": "int"
-          },
-          {
             "name": "referral_type",
             "stack_type": "int"
           },
@@ -1408,6 +1502,18 @@
           {
             "name": "rebate",
             "stack_type": "int"
+          },
+          {
+            "name": "balances_dict",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "nft_balances",
+                "tlb_type": ".",
+                "format": "nft_balances_hashmap"
+              }
+            ]
           }
         ]
       }
@@ -1416,6 +1522,27 @@
   {
     "interface_name": "executor",
     "in_messages": [
+      {
+        "op_name": "mint_executor",
+        "op_code": "0x4f38cae8",
+        "body": [
+          {
+            "name": "nft_owner",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "redirect_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "balances_dict",
+            "tlb_type": ".",
+            "format": "nft_balances_hashmap"
+          }
+        ]
+      },
       {
         "op_name": "add_executor_amount",
         "op_code": "0x5dd66579",
@@ -1562,13 +1689,16 @@
         "arguments": [],
         "return_values": [
           {
-            "name": "vault_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "executor_amount",
-            "stack_type": "int"
+            "name": "balances_dict",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "nft_balances",
+                "tlb_type": ".",
+                "format": "nft_balances_hashmap"
+              }
+            ]
           }
         ]
       }
