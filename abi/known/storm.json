@@ -1363,6 +1363,28 @@
         ]
       },
       {
+        "op_name": "withdraw_referral_amount",
+        "op_code": "0xf5d4eb52",
+        "body": [
+          {
+            "name": "index",
+            "tlb_type": "## 64",
+            "format": "uint64"
+          },
+
+          {
+            "name": "referral_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "owner_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
         "op_name": "nft_item_transfer",
         "op_code": "0x5fcc3d14",
         "body": [
@@ -1560,6 +1582,28 @@
         ]
       },
       {
+        "op_name": "withdraw_executor_amount",
+        "op_code": "0x2cde6351",
+        "body": [
+          {
+            "name": "index",
+            "tlb_type": "## 64",
+            "format": "uint64"
+          },
+
+          {
+            "name": "executor_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "owner_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
         "op_name": "nft_item_transfer",
         "op_code": "0x5fcc3d14",
         "body": [
@@ -1685,7 +1729,7 @@
         ]
       },
       {
-        "name": "get_executor_data",
+        "name": "get_executor_balances",
         "arguments": [],
         "return_values": [
           {
