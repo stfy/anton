@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tonindexer/anton/internal/app/notifier"
 	"github.com/twmb/franz-go/pkg/kgo"
+	"github.com/twmb/franz-go/pkg/sasl/scram"
 	"github.com/urfave/cli/v2"
 	"github.com/xssnick/tonutils-go/liteclient"
 	"github.com/xssnick/tonutils-go/ton"
