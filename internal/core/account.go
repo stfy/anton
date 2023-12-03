@@ -105,6 +105,10 @@ type LatestAccountState struct {
 
 func SkipAddress(a addr.Address) bool {
 	switch a.Base64() {
+	case "EQCaaHxc7o-pMaaGoj8g25EaZHHZIYjkbYgfxRLD3v4vqqIr": // eche odno ebanoe nft
+		return true
+	case "EQDxC-4X-68FBRGm3C9Jxf2wpbCY3HfL40dAgVcjqLIiGKjk": // ebanoe nft
+		return true
 	case "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c": // burn address
 		return true
 	case "Ef8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAU": // system contract

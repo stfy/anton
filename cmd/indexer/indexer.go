@@ -32,12 +32,30 @@ var Command = &cli.Command{
 		chURL := env.GetString("DB_CH_URL", "")
 		pgURL := env.GetString("DB_PG_URL", "")
 
-		brokerSeeds := env.GetStringSlice("BROKER_URL", ",", []string{"5.161.58.63:9092"})
+		brokerSeeds := env.GetStringSlice("BROKER_URL", ",", []string{""})
 
-		cl, err := kgo.NewClient(
+		kafkaOpts := []kgo.Opt{
 			kgo.SeedBrokers(brokerSeeds...),
 			kgo.AllowAutoTopicCreation(),
-		)
+			kgo.ProducerBatchMaxBytes(int32(104857600)),
+		}
+
+		if env.GetBool("KAFKA_SASL_ENABLED", true) {
+			kafkaOpts = append(
+				kafkaOpts,
+				kgo.SASL(
+					scram.Auth{
+						User: env.GetString("KAFKA_SASL_USERNAME", ""),
+						Pass: env.GetString("KAFKA_SASL_PASSWORD", ""),
+					}.AsSha256Mechanism(),
+				),
+			)
+		}
+
+		cl, err := kgo.NewClient(kafkaOpts...)
+		if err != nil {
+			return errors.Wrap(err, "initialize kafka error")
+		}
 
 		conn, err := repository.ConnectDB(ctx.Context, chURL, pgURL)
 		if err != nil {

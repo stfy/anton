@@ -3,10 +3,16 @@ package notifier
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/tonindexer/anton/internal/app"
 	"github.com/tonindexer/anton/internal/core"
 	"github.com/twmb/franz-go/pkg/kgo"
+	"golang.org/x/exp/slices"
 )
+
+var skipNftAddresses = []string{
+	"EQCcuodUc7NuhiifxAaEvVf8Yu2C3xRHhhFrsPqKfTfHI4lO",
+}
 
 var _ app.NotifierService = (*Kafka)(nil)
 
@@ -48,12 +54,20 @@ func (n *Kafka) NotifyAccounts(ctx context.Context, accs []*core.AccountState) e
 }
 
 func (n *Kafka) NotifyMessages(ctx context.Context, msgs []*core.Message) error {
-	for _, msg := range msgs {
+	for id, msg := range msgs {
+		if slices.Contains(skipNftAddresses, msg.DstState.Address.Base64()) {
+			continue
+		}
+
 		msgValue, err := json.Marshal(msg)
 
 		if err != nil {
 			return err
 		}
+
+		fmt.Println(id, "bytes", len(msgValue))
+
+		fmt.Println(id, "bytes", string(msgValue))
 
 		p := n.Client.ProduceSync(
 			ctx,

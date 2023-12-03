@@ -96,15 +96,18 @@
           },
           {
             "name": "free_amount",
-            "tlb_type": "## 64"
+            "tlb_type": "## 64",
+            "format": "int64"
           },
           {
             "name": "locked_amount",
-            "tlb_type": "## 64"
+            "tlb_type": "## 64",
+            "format": "int64"
           },
           {
             "name": "exchange_amount",
-            "tlb_type": "## 64"
+            "tlb_type": "## 64",
+            "format": "int64"
           },
           {
             "name": "withdraw_locked_amount",
@@ -261,7 +264,7 @@
                 "format": "coins"
               },
               {
-                "name": "amm_code",
+                "name": "whitelisted_addresses",
                 "tlb_type": "^",
                 "format": "cell"
               }
@@ -334,7 +337,113 @@
   },
   {
     "interface_name": "amm",
+    "definitions": {
+      "amm_settings": [
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "rollover_fee",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "funding_period",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "init_margin_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "maintenance_margin_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "liquidation_fee_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "partial_liquidation_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "spread_limit",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "max_price_impact",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "max_price_spread",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "max_open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "fee_to_stakers_percent",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "funding_mode",
+          "tlb_type": "## 2",
+          "format": "uint8"
+        },
+        {
+          "name": "min_partial_liquidation_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "min_leverage",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        }
+      ]
+    },
     "in_messages": [
+      {
+        "op_name": "amm::changeSettings",
+        "op_code": "0xedcd36a6",
+        "body": [
+          {
+            "name": "redirect_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "settings",
+            "tlb_type": "^",
+            "format": "amm_settings"
+          }
+        ]
+      },
+      {
+        "op_name": "amm::payFunding",
+        "op_code": "0xb652c441",
+        "body": [
+          {
+            "name": "oracle_ref",
+            "tlb_type": "^",
+            "format": "cell"
+          }
+        ]
+      },
       {
         "op_name": "amm::init",
         "op_code": "0x29c102d1",
@@ -1363,28 +1472,6 @@
         ]
       },
       {
-        "op_name": "withdraw_referral_amount",
-        "op_code": "0xf5d4eb52",
-        "body": [
-          {
-            "name": "index",
-            "tlb_type": "## 64",
-            "format": "uint64"
-          },
-
-          {
-            "name": "referral_amount",
-            "tlb_type": ".",
-            "format": "coins"
-          },
-          {
-            "name": "owner_addr",
-            "tlb_type": "addr",
-            "format": "addr"
-          }
-        ]
-      },
-      {
         "op_name": "nft_item_transfer",
         "op_code": "0x5fcc3d14",
         "body": [
@@ -1475,6 +1562,27 @@
           {
             "name": "collection",
             "tlb_type": "addr"
+          }
+        ]
+      },
+      {
+        "op_name": "withdraw_referral_amount",
+        "op_code": "0xf5d4eb52",
+        "body": [
+          {
+            "name": "index",
+            "tlb_type": "## 64",
+            "format": "uint64"
+          },
+          {
+            "name": "referral_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "owner_addr",
+            "tlb_type": "addr",
+            "format": "addr"
           }
         ]
       }
@@ -1582,28 +1690,6 @@
         ]
       },
       {
-        "op_name": "withdraw_executor_amount",
-        "op_code": "0x2cde6351",
-        "body": [
-          {
-            "name": "index",
-            "tlb_type": "## 64",
-            "format": "uint64"
-          },
-
-          {
-            "name": "executor_amount",
-            "tlb_type": ".",
-            "format": "coins"
-          },
-          {
-            "name": "owner_addr",
-            "tlb_type": "addr",
-            "format": "addr"
-          }
-        ]
-      },
-      {
         "op_name": "nft_item_transfer",
         "op_code": "0x5fcc3d14",
         "body": [
@@ -1694,6 +1780,27 @@
           {
             "name": "collection",
             "tlb_type": "addr"
+          }
+        ]
+      },
+      {
+        "op_name": "withdraw_executor_amount",
+        "op_code": "0x2cde6351",
+        "body": [
+          {
+            "name": "index",
+            "tlb_type": "## 64",
+            "format": "uint64"
+          },
+          {
+            "name": "executor_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "owner_addr",
+            "tlb_type": "addr",
+            "format": "addr"
           }
         ]
       }
