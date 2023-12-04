@@ -34,7 +34,6 @@ var Command = &cli.Command{
 		pgURL := env.GetString("DB_PG_URL", "")
 
 		brokerSeeds := env.GetStringSlice("BROKER_URL", ",", []string{""})
-
 		kafkaOpts := []kgo.Opt{
 			kgo.SeedBrokers(brokerSeeds...),
 			kgo.AllowAutoTopicCreation(),
@@ -54,7 +53,7 @@ var Command = &cli.Command{
 		}
 
 		cl, err := kgo.NewClient(kafkaOpts...)
-		if err != nil {
+		if err = cl.Ping(ctx.Context); err != nil {
 			return errors.Wrap(err, "initialize kafka error")
 		}
 

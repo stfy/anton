@@ -85,7 +85,7 @@ func (s *Service) insertData(
 
 	if err := func() error {
 		defer app.TimeTrack(time.Now(), "NotifyMessages(%d)", len(parsedMessages))
-		return s.Notifier.NotifyMessages(context.Background(), parsedMessages)
+		return s.Notifier.NotifyMessages(ctx, parsedMessages)
 	}(); err != nil {
 		return errors.Wrap(err, "notify messages")
 	}
