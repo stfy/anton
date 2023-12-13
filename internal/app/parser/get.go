@@ -275,10 +275,6 @@ func (s *Service) callPossibleGetMethods( //nolint:gocognit // yeah, it's too lo
 					return
 				}
 
-				if core.SkipAddress(collection.Address) {
-					return
-				}
-
 				s.getNFTItemContent(ctx, collection, exec.Returns[1].(*big.Int), exec.Returns[4].(*cell.Cell), acc) //nolint:forcetypeassert // panic on wrong interface
 				s.checkNFTMinter(ctx, collection, exec.Returns[1].(*big.Int), acc)                                  //nolint:forcetypeassert // panic on wrong interface
 			case "get_jetton_data":

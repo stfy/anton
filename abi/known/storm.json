@@ -1450,7 +1450,7 @@
           },
           {
             "name": "balances_dict",
-            "tlb_type": ".",
+            "tlb_type": "^",
             "format": "nft_balances_hashmap"
           }
         ]
@@ -1668,7 +1668,7 @@
           },
           {
             "name": "balances_dict",
-            "tlb_type": ".",
+            "tlb_type": "cell",
             "format": "nft_balances_hashmap"
           }
         ]
