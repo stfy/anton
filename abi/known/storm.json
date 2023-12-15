@@ -2,6 +2,23 @@
   {
     "interface_name": "vault",
     "definitions": {
+      "buffer_params": [
+        {
+          "name": "buffer_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "buffer_under_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "buffer_over_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        }
+      ],
       "vault_data": [
         {
           "name": "jetton_addr",
@@ -267,6 +284,12 @@
                 "name": "whitelisted_addresses",
                 "tlb_type": "^",
                 "format": "cell"
+              },
+              {
+                "name": "buffer_params",
+                "tlb_type": "^",
+                "format": "buffer_params",
+                "optional": true
               }
             ]
           }
@@ -329,6 +352,28 @@
           },
           {
             "name": "executors_balance",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_buffer_data",
+        "optional": true,
+        "return_values": [
+          {
+            "name": "buffer_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_under_rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_over_rate",
             "stack_type": "int"
           }
         ]
