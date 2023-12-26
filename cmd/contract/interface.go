@@ -115,6 +115,10 @@ func parseInterfaceDesc(d *abi.InterfaceDesc) (*core.ContractInterface, []*core.
 		GetMethodsDesc: d.GetMethods,
 	}
 	for it := range i.GetMethodsDesc {
+		if i.GetMethodsDesc[it].Optional {
+			continue
+		}
+
 		i.GetMethodHashes = append(i.GetMethodHashes, abi.MethodNameHash(i.GetMethodsDesc[it].Name))
 	}
 	if len(i.Code) == 0 {

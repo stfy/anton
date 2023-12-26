@@ -249,6 +249,11 @@ func (s *Service) callPossibleGetMethods( //nolint:gocognit // yeah, it's too lo
 			exec, err := s.callGetMethodNoArgs(ctx, i, d.Name, acc)
 			if err != nil {
 				log.Error().Err(err).Str("contract_name", string(i.Name)).Str("get_method", d.Name).Msg("execute get-method")
+
+				if d.Optional {
+					continue
+				}
+
 				return
 			}
 

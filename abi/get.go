@@ -29,6 +29,7 @@ type VmValueDesc struct {
 
 type GetMethodDesc struct {
 	Name         string        `json:"name"`
+	Optional     bool          `json:"optional"`
 	Arguments    []VmValueDesc `json:"arguments,omitempty"`
 	ReturnValues []VmValueDesc `json:"return_values"`
 }
