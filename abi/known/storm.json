@@ -1379,6 +1379,441 @@
     ]
   },
   {
+    "interface_name": "position_manager_v2r1",
+    "definitions": {
+      "amm_change": [
+        {
+          "name": "quote_asset_reserve",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "quote_asset_reserve_weight",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "base_asset_reserve",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "total_long_position_size",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "total_short_position_size",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_interest_long",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_interest_short",
+          "tlb_type": ".",
+          "format": "coins"
+        }
+      ],
+      "position_change": [
+        {
+          "name": "size",
+          "tlb_type": "## 128",
+          "format": "bigInt"
+        },
+        {
+          "name": "direction",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "margin",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "last_updated_cumulative_premium",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        }
+      ],
+      "referral_data": [
+        {
+          "name": "address",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32"
+        }
+      ],
+      "position_state": [
+        {
+          "name": "size",
+          "tlb_type": "## 128",
+          "format": "bigInt"
+        },
+        {
+          "name": "direction",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "margin",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "last_updated_cumulative_premium",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        }
+      ],
+      "position_record": [
+        {
+          "name": "locked",
+          "tlb_type": "bool",
+          "format": "bool"
+        },
+        {
+          "name": "redirect_address",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "orders_bitset",
+          "tlb_type": "## 8",
+          "format": "uint32"
+        },
+        {
+          "name": "orders",
+          "tlb_type": ".",
+          "format": "orders"
+        },
+        {
+          "name": "position",
+          "tlb_type": "^",
+          "format": "position_state"
+        }
+      ]
+    },
+    "in_messages": [
+      {
+        "op_name": "take_referral_fees",
+        "op_code": "0x12d9601d",
+        "body": [
+          {
+            "name": "referral_fees",
+            "tlb_type": "^",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "discount",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "rebate",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::cancel_order",
+        "op_code": "0x67134629",
+        "body": [
+          {
+            "name": "order_type",
+            "tlb_type": "## 4",
+            "format": "uint8"
+          },
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "gas_to_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::create_order",
+        "op_code": "0xa39843f4",
+        "body": [
+          {
+            "name": "order_payload",
+            "tlb_type": ".",
+            "format": "order"
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::complete_order",
+        "op_code": "0xcf90d618",
+        "body": [
+          {
+            "name": "order_type",
+            "tlb_type": "## 4",
+            "format": "uint8"
+          },
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "origin_opcode",
+            "tlb_type": ".",
+            "format": "opcode"
+          },
+          {
+            "name": "index_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "position",
+            "tlb_type": "^",
+            "format": "position_change"
+          },
+          {
+            "name": "amm",
+            "tlb_type": "^",
+            "format": "amm_change"
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::activate_order",
+        "op_code": "0x9d2ec640",
+        "body": [
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "activated_order",
+            "tlb_type": "^",
+            "format": "order"
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::update_position",
+        "op_code": "0x60dfc677",
+        "body": [
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "origin_opcode",
+            "tlb_type": ".",
+            "format": "opcode"
+          },
+          {
+            "name": "index_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "position",
+            "tlb_type": "^",
+            "format": "position_change"
+          },
+          {
+            "name": "amm",
+            "tlb_type": "^",
+            "format": "amm_change"
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::update_position_with_stop_loss",
+        "op_code": "0x5d1b17b8",
+        "body": [
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "stop_trigger_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "take_trigger_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "origin_opcode",
+            "tlb_type": ".",
+            "format": "opcode"
+          },
+          {
+            "name": "index_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "position",
+            "tlb_type": "^",
+            "format": "position_change"
+          },
+          {
+            "name": "amm",
+            "tlb_type": "^",
+            "format": "amm_change"
+          }
+        ]
+      }
+    ],
+    "out_messages": [
+      {
+        "op_name": "position_manager::order_created",
+        "op_code": "0x3a943ce6",
+        "body": []
+      },
+      {
+        "op_name": "position_manager::order_canceled",
+        "op_code": "0x69d08679",
+        "body": []
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_position_manager_contract_data",
+        "return_values": [
+          {
+            "name": "info",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "trader_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "vault_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "amm_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "long",
+                "tlb_type": "maybe ^",
+                "format": "position_record"
+              },
+              {
+                "name": "short",
+                "tlb_type": "maybe ^",
+                "format": "position_record"
+              },
+              {
+                "name": "referral_data",
+                "tlb_type": "maybe ^",
+                "format": "referral_data"
+              },
+              {
+                "name": "orders",
+                "tlb_type": ".",
+                "format": "orders"
+              },
+              {
+                "name": "orders_bitset",
+                "tlb_type": "## 8",
+                "format": "uint32"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "interface_name": "vault_liquidity_provider",
     "get_methods": [
       {

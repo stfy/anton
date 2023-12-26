@@ -1,12 +1,14 @@
 package known_test
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/require"
 	"github.com/tonindexer/anton/abi"
 	"github.com/xssnick/tonutils-go/address"
+	"github.com/xssnick/tonutils-go/tvm/cell"
 	"os"
 	"testing"
 )
@@ -116,4 +118,39 @@ func Test_Vault(t *testing.T) {
 			fmt.Println(ret)
 		}
 	}
+}
+
+func Test_PositionManager(t *testing.T) {
+	var (
+		interfaces []*abi.InterfaceDesc
+		i          *abi.InterfaceDesc
+	)
+
+	j, err := os.ReadFile("storm.json")
+	require.Nil(t, err)
+
+	err = json.Unmarshal(j, &interfaces)
+	require.Nil(t, err)
+
+	for _, i = range interfaces {
+		if i.Name == "position_manager" {
+			err := abi.RegisterDefinitions(i.Definitions)
+			require.Nil(t, err)
+			break
+		}
+	}
+
+	data := "te6cckEBBgEA7AADy4AZnKSjwXj7b7qulrljp4DKyOPHk3TDrKeywGQaWHD1jPABeEG4/wEK3O8yOGHVsDsHVl9aJuGZ5nMny4gsh3nqnBoAOlwxxRHV3b1P4G/s3Yov3TlxXQFWLhsFWZmjbsVKOV13/AQCAQARAAAAAAAAAAAgAQMf6AMAZ////////////////9+dW4+oEo9EW3qDetzRJoAAAAAAAAAAAAknwAAAAAAAAAAAMsVvq8ABAx/oBQBnAAAAAAAAAAAAAAAAIGKkcSgSj0RbeoN63NEmgAAAAAAAAAAACSfAAAAAAAAAAAAyxW+rwNAApbE="
+	boc, err := base64.StdEncoding.DecodeString(data)
+	require.Nil(t, err)
+
+	c, err := cell.FromBOC(boc)
+	require.Nil(t, err)
+
+	method := getMethodDescByName(i, "get_position_manager_contract_data")
+
+	v, err := method.ReturnValues[0].Fields.FromCell(c)
+	require.Nil(t, err)
+
+	spew.Dump(v)
 }
