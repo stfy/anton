@@ -377,6 +377,15 @@
             "stack_type": "int"
           }
         ]
+      },
+      {
+        "name": "get_vault_type",
+        "return_values": [
+          {
+            "name": "vault_type",
+            "stack_type": "int"
+          }
+        ]
       }
     ]
   },
