@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"github.com/tonindexer/anton/internal/app/parser"
 	"os"
 	"os/signal"
 	"strings"
@@ -35,6 +36,8 @@ var Command = &cli.Command{
 			return errors.Wrap(err, "cannot connect to a database")
 		}
 
+		contractRepo := contract.NewRepository(conn.PG)
+
 		def, err := contract.NewRepository(conn.PG).GetDefinitions(ctx.Context)
 		if err != nil {
 			return errors.Wrap(err, "get definitions")
@@ -57,6 +60,15 @@ var Command = &cli.Command{
 			}
 		}
 
+		bcConfig, err := app.GetBlockchainConfig(ctx.Context, api)
+		if err != nil {
+			return errors.Wrap(err, "cannot get blockchain config")
+		}
+
+		p := parser.NewService(&app.ParserConfig{
+			BlockchainConfig: bcConfig,
+			ContractRepo:     contractRepo,
+		})
 		qs, err := query.NewService(ctx.Context, &app.QueryConfig{
 			DB:  conn,
 			API: api,
@@ -68,7 +80,7 @@ var Command = &cli.Command{
 		srv := http.NewServer(
 			env.GetString("LISTEN", "0.0.0.0:80"),
 		)
-		srv.RegisterRoutes(http.NewController(qs))
+		srv.RegisterRoutes(http.NewController(qs, p, api))
 
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

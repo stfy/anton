@@ -254,7 +254,7 @@ func (s *Service) callPossibleGetMethods( //nolint:gocognit // yeah, it's too lo
 					continue
 				}
 
-				return
+				continue
 			}
 
 			acc.ExecutedGetMethods[i.Name] = append(acc.ExecutedGetMethods[i.Name], exec)

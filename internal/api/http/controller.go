@@ -1,8 +1,11 @@
 package http
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/hex"
+	"github.com/tonindexer/anton/internal/app/fetcher"
+	"github.com/xssnick/tonutils-go/ton"
 	"net/http"
 	"strconv"
 	"strings"
@@ -39,11 +42,13 @@ var basePath = "/api/v0"
 var _ QueryController = (*Controller)(nil)
 
 type Controller struct {
-	svc app.QueryService
+	svc    app.QueryService
+	parser app.ParserService
+	API    ton.APIClientWrapped
 }
 
-func NewController(svc app.QueryService) *Controller {
-	return &Controller{svc: svc}
+func NewController(svc app.QueryService, parser app.ParserService, api ton.APIClientWrapped) *Controller {
+	return &Controller{svc: svc, parser: parser, API: api}
 }
 
 func paramErr(ctx *gin.Context, param string, err error) {
@@ -329,6 +334,60 @@ func (c *Controller) GetLabels(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, ret)
 }
 
+func (c *Controller) GetAccountInterface(ctx *gin.Context) {
+	var req filter.AccountInterfaceReq
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "account_filter", err)
+		return
+	}
+
+	req.Address, err = unmarshalAddress(ctx.Query("address"))
+	if err != nil {
+		paramErr(ctx, "address", err)
+		return
+	}
+
+	res, err := c.svc.FilterAccounts(
+		ctx,
+		&filter.AccountsReq{Addresses: []*addr.Address{req.Address}, LatestState: true},
+	)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+
+	if len(res.Rows) == 0 {
+		internalErr(ctx, errors.New("not found"))
+		return
+	}
+
+	// sometimes, to parse the full account data we need to get other contracts states
+	// for example, to get nft item data
+	getOtherAccount := func(ctx context.Context, a addr.Address) (*core.AccountState, error) {
+		b, err := c.API.GetMasterchainInfo(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		raw, err := c.API.GetAccount(ctx, b, a.MustToTonutils())
+		if err == nil {
+			return fetcher.MapAccount(b, raw), nil
+		}
+
+		return nil, errors.Wrapf(core.ErrNotFound, "cannot find %s account state", a.Base64())
+	}
+
+	err = c.parser.ParseAccountData(ctx, res.Rows[0], getOtherAccount)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, res)
+}
+
 // GetAccounts godoc
 //
 //	@Summary		account data
@@ -381,6 +440,7 @@ func (c *Controller) GetAccounts(ctx *gin.Context) {
 		return
 	}
 
+	req.ExcludeColumn = []string{"IsActive"}
 	ret, err := c.svc.FilterAccounts(ctx, &req)
 	if err != nil {
 		internalErr(ctx, err)
