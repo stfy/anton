@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-
 	"github.com/xssnick/tonutils-go/ton"
 
 	"github.com/tonindexer/anton/abi"

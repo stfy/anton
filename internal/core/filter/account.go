@@ -23,6 +23,8 @@ type LabelsRes struct {
 type AccountsReq struct {
 	Addresses   []*addr.Address // `form:"addresses"`
 	LatestState bool            `form:"latest"`
+	// only load latest states in cache
+	ForceCache bool `form:"force_cache"`
 
 	// contract data filter
 	ContractTypes []abi.ContractName `form:"interface"`

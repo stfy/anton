@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -38,6 +39,8 @@ func (c *cache) clearCaches() {
 func (c *cache) setInterfaces(interfaces []*core.ContractInterface) {
 	c.Lock()
 	defer c.Unlock()
+
+	fmt.Println("cache interfaces")
 
 	for _, i := range interfaces {
 		if _, ok := c.getMethods[i.Name]; !ok {

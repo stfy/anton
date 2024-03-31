@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/allisson/go-env"
 	"github.com/pkg/errors"
+	"github.com/redis/rueidis"
 	"github.com/tonindexer/anton/internal/app/notifier"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/twmb/franz-go/pkg/sasl/scram"
@@ -32,6 +33,7 @@ var Command = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		chURL := env.GetString("DB_CH_URL", "")
 		pgURL := env.GetString("DB_PG_URL", "")
+		rsURL := env.GetString("REDIS_URL", "")
 
 		brokerSeeds := env.GetStringSlice("BROKER_URL", ",", []string{""})
 		kafkaOpts := []kgo.Opt{
@@ -52,6 +54,12 @@ var Command = &cli.Command{
 			)
 		}
 
+		rsClient, err := rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{rsURL}})
+		if err != nil {
+			return errors.Wrap(err, "cannot connect redis client")
+		}
+		defer rsClient.Close()
+
 		cl, err := kgo.NewClient(kafkaOpts...)
 		if err = cl.Ping(ctx.Context); err != nil {
 			return errors.Wrap(err, "initialize kafka error")
@@ -62,6 +70,7 @@ var Command = &cli.Command{
 			return errors.Wrap(err, "cannot connect to a database")
 		}
 
+		repository.WithCache(conn, rsClient)
 		contractRepo := contract.NewRepository(conn.PG)
 
 		interfaces, err := contractRepo.GetInterfaces(ctx.Context)

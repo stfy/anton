@@ -2,6 +2,7 @@ package query
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/xssnick/tonutils-go/ton"
@@ -38,12 +39,20 @@ func NewService(_ context.Context, cfg *app.QueryConfig) (*Service, error) {
 	var s = new(Service)
 
 	s.QueryConfig = cfg
-	ch, pg := s.DB.CH, s.DB.PG
+	ch, pg, rs := s.DB.CH, s.DB.PG, s.DB.Redis
 	s.txRepo = tx.NewRepository(ch, pg)
 	s.msgRepo = msg.NewRepository(ch, pg)
 	s.blockRepo = block.NewRepository(ch, pg)
-	s.accountRepo = account.NewRepository(ch, pg)
+	s.accountRepo = account.NewRepository(ch, pg, rs)
 	s.contractRepo = contract.NewRepository(pg)
+
+	interfaces, err := s.contractRepo.GetInterfaces(context.Background())
+	if err != nil {
+		return nil, errors.Wrap(err, "get interfaces")
+	}
+	if len(interfaces) == 0 {
+		return nil, errors.New("no contract interfaces")
+	}
 
 	return s, nil
 }
@@ -169,9 +178,17 @@ func (s *Service) FilterAccounts(ctx context.Context, req *filter.AccountsReq) (
 	if err := s.fetchSkippedAccounts(ctx, req, res); err != nil {
 		return nil, err
 	}
-	if err := s.addGetMethodDescription(ctx, res.Rows); err != nil {
+
+	err = func() error {
+		defer app.TimeTrack(time.Now(), "addGetMethodDescription")
+
+		return s.addGetMethodDescription(ctx, res.Rows)
+	}()
+
+	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 

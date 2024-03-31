@@ -4,23 +4,21 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/hex"
-	"github.com/tonindexer/anton/internal/app/fetcher"
-	"github.com/xssnick/tonutils-go/ton"
-	"net/http"
-	"strconv"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-
 	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/addr"
 	"github.com/tonindexer/anton/internal/app"
+	"github.com/tonindexer/anton/internal/app/fetcher"
 	"github.com/tonindexer/anton/internal/core"
 	"github.com/tonindexer/anton/internal/core/aggregate"
 	"github.com/tonindexer/anton/internal/core/aggregate/history"
 	"github.com/tonindexer/anton/internal/core/filter"
+	"github.com/xssnick/tonutils-go/ton"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
 // @title      		Anton
@@ -441,13 +439,14 @@ func (c *Controller) GetAccounts(ctx *gin.Context) {
 	}
 
 	req.ExcludeColumn = []string{"IsActive"}
-	ret, err := c.svc.FilterAccounts(ctx, &req)
+	resp, err := c.svc.FilterAccounts(ctx, &req)
 	if err != nil {
 		internalErr(ctx, err)
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, ret)
+	ctx.JSON(http.StatusOK, resp)
+
 }
 
 // AggregateAccounts godoc

@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"github.com/redis/rueidis"
 	"github.com/tonindexer/anton/internal/app/parser"
 	"os"
 	"os/signal"
@@ -29,6 +30,13 @@ var Command = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		chURL := env.GetString("DB_CH_URL", "")
 		pgURL := env.GetString("DB_PG_URL", "")
+		rsURL := env.GetString("REDIS_URL", "")
+
+		rsClient, err := rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{rsURL}})
+		if err != nil {
+			return errors.Wrap(err, "cannot connect redis client")
+		}
+		defer rsClient.Close()
 
 		conn, err := repository.ConnectDB(
 			ctx.Context, chURL, pgURL)
@@ -36,9 +44,10 @@ var Command = &cli.Command{
 			return errors.Wrap(err, "cannot connect to a database")
 		}
 
+		repository.WithCache(conn, rsClient)
 		contractRepo := contract.NewRepository(conn.PG)
 
-		def, err := contract.NewRepository(conn.PG).GetDefinitions(ctx.Context)
+		def, err := contractRepo.GetDefinitions(ctx.Context)
 		if err != nil {
 			return errors.Wrap(err, "get definitions")
 		}

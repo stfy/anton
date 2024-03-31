@@ -1,13 +1,10 @@
 package main
 
-//#cgo  LDFLAGS:  -L /Users/tsemenyuk/dev/@tsunami/@ton/anton/ton/ton-build/emulator  -Wl,-rpath,/Users/tsemenyuk/dev/@tsunami/@ton/anton/ton/ton-build/emulator  -l emulator
 import "C"
 import (
-	"github.com/tonindexer/anton/cmd/reindex"
-	"os"
-
 	"github.com/allisson/go-env"
 	"github.com/urfave/cli/v2"
+	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -43,7 +40,6 @@ func main() {
 			archive.Command,
 			contract.Command,
 			label.Command,
-			reindex.Command,
 		},
 	}
 	if err := app.Run(os.Args); err != nil {
