@@ -183,6 +183,18 @@ func (s *Service) FilterAccounts(ctx context.Context, req *filter.AccountsReq) (
 	return res, nil
 }
 
+func (s *Service) FilterLatestAccounts(ctx context.Context, req *filter.AccountLatestReq) (*filter.AccountsRes, error) {
+	res, err := s.accountRepo.FilterLatestAccounts(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.addGetMethodDescription(ctx, res.Rows); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (s *Service) AggregateAccounts(ctx context.Context, req *aggregate.AccountsReq) (*aggregate.AccountsRes, error) {
 	return s.accountRepo.AggregateAccounts(ctx, req)
 }

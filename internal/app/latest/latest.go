@@ -94,3 +94,21 @@ func GetLatestAccounts(ctx context.Context, client rueidis.Client, value abi.Con
 
 	return result, nil
 }
+
+func GetLatestAccount(ctx context.Context, client rueidis.Client, accountType, address string) (*core.AccountState, error) {
+	defer app.TimeTrack(time.Now(), "cache.GetLatestAccounts")
+	cmd := client.B().Hget().Key(accountType).Field(address).Build()
+
+	res := client.Do(ctx, cmd)
+	if err := res.Error(); err != nil {
+		return nil, err
+	}
+
+	var acc core.AccountState
+	err := res.DecodeJSON(&acc)
+	if err != nil {
+		return nil, err
+	}
+
+	return &acc, nil
+}
