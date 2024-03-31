@@ -63,7 +63,7 @@ func (s *Server) RegisterRoutes(t QueryController) {
 	base.GET("/labels/categories", t.GetLabelCategories)
 
 	base.GET("/accounts", t.GetAccounts)
-	base.GET("/accounts/latest", t.GetAccounts)
+	base.GET("/accounts/latest", t.GetLatestAccounts)
 	base.GET("/accounts/aggregated", t.AggregateAccounts)
 	base.GET("/accounts/aggregated/history", t.AggregateAccountsHistory)
 	base.GET("/accounts/interface", t.GetAccountInterface)
