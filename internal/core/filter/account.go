@@ -44,6 +44,11 @@ type AccountsRes struct {
 	Rows  []*core.AccountState `json:"results"`
 }
 
+type AccountLatestReq struct {
+	ContractTypes abi.ContractName `form:"interface"`
+	Address       *addr.Address    // `form:"addresses"`
+}
+
 type AccountInterfaceReq struct {
 	Address *addr.Address // `form:"addresses"`
 }
@@ -51,4 +56,5 @@ type AccountInterfaceReq struct {
 type AccountRepository interface {
 	FilterLabels(context.Context, *LabelsReq) (*LabelsRes, error)
 	FilterAccounts(context.Context, *AccountsReq) (*AccountsRes, error)
+	FilterLatestAccounts(context.Context, *AccountLatestReq) (*AccountsRes, error)
 }

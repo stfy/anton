@@ -161,6 +161,21 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 	return ret, err
 }
 
+func (r *Repository) filterLatestAccountStates(ctx context.Context, f *filter.AccountLatestReq) (ret []*core.AccountState, err error) {
+	if f.Address == nil {
+		ret, err = cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes)
+	} else {
+		res, err := cache.GetLatestAccount(ctx, r.rs, string(f.ContractTypes), f.Address.String())
+		if err != nil {
+			return nil, err
+		}
+
+		ret = append(ret, res)
+	}
+
+	return ret, err
+}
+
 func (r *Repository) countAccountStates(ctx context.Context, f *filter.AccountsReq) (int, error) {
 	q := r.ch.NewSelect().Model((*core.AccountState)(nil))
 
@@ -205,6 +220,20 @@ func (r *Repository) FilterAccounts(ctx context.Context, f *filter.AccountsReq) 
 	}
 
 	res.Rows, err = r.filterAccountStates(ctx, f, res.Total)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+func (r *Repository) FilterLatestAccounts(ctx context.Context, f *filter.AccountLatestReq) (*filter.AccountsRes, error) {
+	var (
+		res = new(filter.AccountsRes)
+		err error
+	)
+
+	res.Rows, err = r.filterLatestAccountStates(ctx, f)
 	if err != nil {
 		return res, err
 	}

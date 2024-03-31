@@ -386,6 +386,30 @@ func (c *Controller) GetAccountInterface(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, res)
 }
 
+func (c *Controller) GetLatestAccounts(ctx *gin.Context) {
+	var req filter.AccountLatestReq
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "account_filter", err)
+		return
+	}
+
+	req.Address, err = unmarshalAddress(ctx.Query("address"))
+	if err != nil {
+		paramErr(ctx, "address", err)
+		return
+	}
+
+	res, err := c.svc.FilterLatestAccounts(ctx, &req)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, res)
+}
+
 // GetAccounts godoc
 //
 //	@Summary		account data
