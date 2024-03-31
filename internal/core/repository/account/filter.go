@@ -3,7 +3,10 @@ package account
 import (
 	"context"
 	"fmt"
+	"github.com/tonindexer/anton/internal/app"
+	cache "github.com/tonindexer/anton/internal/app/latest"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun"
@@ -77,11 +80,18 @@ func (r *Repository) FilterLabels(ctx context.Context, f *filter.LabelsReq) (*fi
 }
 
 func (r *Repository) filterAccountStates(ctx context.Context, f *filter.AccountsReq, total int) (ret []*core.AccountState, err error) {
+	defer app.TimeTrack(time.Now(), "filterAccountStates")
+
 	var (
 		q                   *bun.SelectQuery
 		prefix, statesTable string
 		latest              []*core.LatestAccountState
 	)
+
+	if f.ForceCache && f.LatestState {
+		// only 1 type allowed
+		return cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes[0])
+	}
 
 	// choose table to filter states by
 	// and optionally join account data
@@ -145,6 +155,14 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 		}
 	}
 
+	if f.LatestState {
+		for i := range ret {
+			if err := cache.AddAccount(ctx, r.rs, ret[i]); err != nil {
+				fmt.Println("redis err", err)
+			}
+		}
+	}
+
 	return ret, err
 }
 
@@ -189,14 +207,6 @@ func (r *Repository) FilterAccounts(ctx context.Context, f *filter.AccountsReq) 
 
 	if f.Limit == 0 {
 		f.Limit = 3
-	}
-
-	res.Total, err = r.countAccountStates(ctx, f)
-	if err != nil {
-		return res, err
-	}
-	if res.Total == 0 {
-		return res, nil
 	}
 
 	res.Rows, err = r.filterAccountStates(ctx, f, res.Total)

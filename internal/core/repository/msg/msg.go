@@ -192,10 +192,12 @@ func (r *Repository) AddMessages(ctx context.Context, tx bun.Tx, messages []*cor
 			return err
 		}
 	}
-	_, err := r.ch.NewInsert().Model(&messages).Exec(ctx)
-	if err != nil {
-		return err
-	}
+
+	//_, err := r.ch.NewInsert().Model(&messages).Exec(ctx)
+	//if err != nil {
+	//	return err
+	//}
+
 	return nil
 }
 

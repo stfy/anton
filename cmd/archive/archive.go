@@ -59,7 +59,7 @@ var Command = &cli.Command{
 				continue
 			}
 
-			_, err = api.LookupBlock(ctx.Context, master.Workchain, master.Shard, 3)
+			_, err = api.LookupBlock(ctx.Context, master.Workchain, master.Shard, master.SeqNo-1)
 			if err != nil {
 				continue
 			}

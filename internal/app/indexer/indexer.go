@@ -44,11 +44,11 @@ func NewService(cfg *app.IndexerConfig) *Service {
 		s.FromBlock = 2
 	}
 
-	ch, pg := s.DB.CH, s.DB.PG
+	ch, pg, rs := s.DB.CH, s.DB.PG, s.DB.Redis
 	s.txRepo = tx.NewRepository(ch, pg)
 	s.msgRepo = msg.NewRepository(ch, pg)
 	s.blockRepo = block.NewRepository(ch, pg)
-	s.accountRepo = account.NewRepository(ch, pg)
+	s.accountRepo = account.NewRepository(ch, pg, rs)
 
 	return s
 }

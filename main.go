@@ -1,12 +1,10 @@
 package main
 
-//#cgo  LDFLAGS:  -L /Users/tsemenyuk/dev/@tsunami/@ton/anton/ton/ton-build/emulator  -Wl,-rpath,/Users/tsemenyuk/dev/@tsunami/@ton/anton/ton/ton-build/emulator  -l emulator
 import "C"
 import (
-	"os"
-
 	"github.com/allisson/go-env"
 	"github.com/urfave/cli/v2"
+	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

@@ -110,9 +110,9 @@ func (r *Repository) AddTransactions(ctx context.Context, tx bun.Tx, transaction
 			return err
 		}
 	}
-	_, err := r.ch.NewInsert().Model(&transactions).Exec(ctx)
-	if err != nil {
-		return err
-	}
+	//_, err := r.ch.NewInsert().Model(&transactions).Exec(ctx)
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }

@@ -3,6 +3,8 @@ package account
 import (
 	"context"
 	"database/sql"
+	"github.com/redis/rueidis"
+	cache "github.com/tonindexer/anton/internal/app/latest"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -19,10 +21,16 @@ var _ repository.Account = (*Repository)(nil)
 type Repository struct {
 	ch *ch.DB
 	pg *bun.DB
+	rs rueidis.Client
 }
 
-func NewRepository(ck *ch.DB, pg *bun.DB) *Repository {
-	return &Repository{ch: ck, pg: pg}
+func NewRepository(ck *ch.DB, pg *bun.DB, rs ...rueidis.Client) *Repository {
+	repo := &Repository{ch: ck, pg: pg}
+	if len(rs) == 1 && rs[0] != nil {
+		repo.rs = rs[0]
+	}
+
+	return repo
 }
 
 func createIndexes(ctx context.Context, pgDB *bun.DB) error {
@@ -203,6 +211,10 @@ func (r *Repository) AddAccountStates(ctx context.Context, tx bun.Tx, accounts [
 	for _, a := range accounts {
 		if addrTxLT[a.Address] < a.LastTxLT {
 			addrTxLT[a.Address] = a.LastTxLT
+
+			if err := cache.AddAccount(ctx, r.rs, a); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -216,6 +228,7 @@ func (r *Repository) AddAccountStates(ctx context.Context, tx bun.Tx, accounts [
 			Where("latest_account_state.last_tx_lt < ?", lt).
 			Set("last_tx_lt = EXCLUDED.last_tx_lt").
 			Exec(ctx)
+
 		if err != nil {
 			return errors.Wrapf(err, "cannot set latest state for %s", &a)
 		}

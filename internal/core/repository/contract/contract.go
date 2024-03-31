@@ -154,6 +154,8 @@ func (r *Repository) GetInterfaces(ctx context.Context) ([]*core.ContractInterfa
 
 func (r *Repository) GetMethodDescription(ctx context.Context, name abi.ContractName, method string) (abi.GetMethodDesc, error) {
 	if d, ok := r.cache.getMethodDesc(name, method); ok {
+		_, _ = r.GetInterfaces(ctx)
+
 		return d, nil
 	}
 
