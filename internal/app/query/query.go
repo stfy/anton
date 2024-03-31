@@ -2,8 +2,6 @@ package query
 
 import (
 	"context"
-	"time"
-
 	"github.com/pkg/errors"
 	"github.com/xssnick/tonutils-go/ton"
 
@@ -178,14 +176,7 @@ func (s *Service) FilterAccounts(ctx context.Context, req *filter.AccountsReq) (
 	if err := s.fetchSkippedAccounts(ctx, req, res); err != nil {
 		return nil, err
 	}
-
-	err = func() error {
-		defer app.TimeTrack(time.Now(), "addGetMethodDescription")
-
-		return s.addGetMethodDescription(ctx, res.Rows)
-	}()
-
-	if err != nil {
+	if err := s.addGetMethodDescription(ctx, res.Rows); err != nil {
 		return nil, err
 	}
 
