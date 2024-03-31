@@ -3,15 +3,12 @@ package account
 import (
 	"context"
 	"fmt"
-	"github.com/tonindexer/anton/internal/app"
-	cache "github.com/tonindexer/anton/internal/app/latest"
-	"strings"
-	"time"
-
 	"github.com/pkg/errors"
+	cache "github.com/tonindexer/anton/internal/app/latest"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/go-clickhouse/ch"
+	"strings"
 
 	"github.com/tonindexer/anton/internal/core"
 	"github.com/tonindexer/anton/internal/core/filter"
@@ -80,8 +77,6 @@ func (r *Repository) FilterLabels(ctx context.Context, f *filter.LabelsReq) (*fi
 }
 
 func (r *Repository) filterAccountStates(ctx context.Context, f *filter.AccountsReq, total int) (ret []*core.AccountState, err error) {
-	defer app.TimeTrack(time.Now(), "filterAccountStates")
-
 	var (
 		q                   *bun.SelectQuery
 		prefix, statesTable string
