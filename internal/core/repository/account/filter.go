@@ -163,9 +163,9 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 
 func (r *Repository) filterLatestAccountStates(ctx context.Context, f *filter.AccountLatestReq) (ret []*core.AccountState, err error) {
 	if f.Address == nil {
-		ret, err = cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes)
+		ret, err = cache.GetLatestAccounts(ctx, r.rs, f.ContractType)
 	} else {
-		res, err := cache.GetLatestAccount(ctx, r.rs, string(f.ContractTypes), f.Address.String())
+		res, err := cache.GetLatestAccount(ctx, r.rs, string(f.ContractType), f.Address.String())
 		if err != nil {
 			return nil, err
 		}
