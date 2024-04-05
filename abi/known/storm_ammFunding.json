@@ -504,11 +504,11 @@
                     },
                     {
                         "name": "direct_increase_enabled",
-                        "stack_type": "bool"
+                        "stack_type": "int"
                     },
                     {
                         "name": "direct_close_enabled",
-                        "stack_type": "bool"
+                        "stack_type": "int"
                     },
                     {
                         "name": "executors_whitelist",
