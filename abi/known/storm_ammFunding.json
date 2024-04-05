@@ -500,28 +500,23 @@
                     },
                     {
                         "name": "lowFundingFnA",
-                        "tlb_type": "## 32",
-                        "format": "uint32"
+                        "format": "int"
                     },
                     {
                         "name": "lowFundingFnB",
-                        "tlb_type": "## 32",
-                        "format": "uint32"
+                        "format": "int"
                     },
                     {
                         "name": "highFundingFnA",
-                        "tlb_type": "## 32",
-                        "format": "uint32"
+                        "format": "int"
                     },
                     {
                         "name": "highFundingFnB",
-                        "tlb_type": "## 32",
-                        "format": "uint32"
+                        "format": "int"
                     },
                     {
                         "name": "inflectionPoint",
-                        "tlb_type": "## 32",
-                        "format": "uint32"
+                        "format": "int"
                     }
                 ]
             },
