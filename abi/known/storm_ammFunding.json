@@ -398,31 +398,6 @@
                                         "name": "executors_whitelist",
                                         "tlb_type": "^",
                                         "format": "cell"
-                                    },
-                                    {
-                                        "name": "lowFundingFnA",
-                                        "tlb_type": "## 32",
-                                        "format": "uint32"
-                                    },
-                                    {
-                                        "name": "lowFundingFnB",
-                                        "tlb_type": "## 32",
-                                        "format": "uint32"
-                                    },
-                                    {
-                                        "name": "highFundingFnA",
-                                        "tlb_type": "## 32",
-                                        "format": "uint32"
-                                    },
-                                    {
-                                        "name": "highFundingFnB",
-                                        "tlb_type": "## 32",
-                                        "format": "uint32"
-                                    },
-                                    {
-                                        "name": "inflectionPoint",
-                                        "tlb_type": "## 32",
-                                        "format": "uint32"
                                     }
                                 ]
                             }
