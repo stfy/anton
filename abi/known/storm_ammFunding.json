@@ -497,26 +497,6 @@
                     {
                         "name": "close_position_time_delta",
                         "stack_type": "int"
-                    },
-                    {
-                        "name": "lowFundingFnA",
-                        "stack_type": "int"
-                    },
-                    {
-                        "name": "lowFundingFnB",
-                        "stack_type": "int"
-                    },
-                    {
-                        "name": "highFundingFnA",
-                        "stack_type": "int"
-                    },
-                    {
-                        "name": "highFundingFnB",
-                        "stack_type": "int"
-                    },
-                    {
-                        "name": "inflectionPoint",
-                        "stack_type": "int"
                     }
                 ]
             },
