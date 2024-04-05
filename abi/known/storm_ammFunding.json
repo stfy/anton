@@ -1,6 +1,6 @@
 [
     {
-        "interface_name": "amm_v3r1",
+        "interface_name": "amm_v2r3",
         "definitions": {
             "amm_settings": [
                 {
@@ -598,6 +598,31 @@
                     {
                         "name": "oracle_public_keys_ref",
                         "stack_type": "cell"
+                    }
+                ]
+            },
+            {
+                "name": "get_funding_settings",
+                "return_values": [
+                    {
+                        "name": "lowFundingFnA",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "lowFundingFnB",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "highFundingFnA",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "highFundingFnB",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "inflectionPoint",
+                        "stack_type": "int"
                     }
                 ]
             },
