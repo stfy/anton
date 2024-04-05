@@ -497,6 +497,42 @@
                     {
                         "name": "close_position_time_delta",
                         "stack_type": "int"
+                    },
+                    {
+                        "name": "max_unrealized_pnl",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "direct_increase_enabled",
+                        "stack_type": "bool"
+                    },
+                    {
+                        "name": "direct_close_enabled",
+                        "stack_type": "bool"
+                    },
+                    {
+                        "name": "executors_whitelist",
+                        "stack_type": "cell"
+                    },
+                    {
+                        "name": "lowFundingFnA",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "lowFundingFnB",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "highFundingFnA",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "highFundingFnB",
+                        "stack_type": "int"
+                    },
+                    {
+                        "name": "inflectionPoint",
+                        "stack_type": "int"
                     }
                 ]
             },
