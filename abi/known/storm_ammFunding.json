@@ -500,23 +500,23 @@
                     },
                     {
                         "name": "lowFundingFnA",
-                        "format": "int"
+                        "stack_type": "int"
                     },
                     {
                         "name": "lowFundingFnB",
-                        "format": "int"
+                        "stack_type": "int"
                     },
                     {
                         "name": "highFundingFnA",
-                        "format": "int"
+                        "stack_type": "int"
                     },
                     {
                         "name": "highFundingFnB",
-                        "format": "int"
+                        "stack_type": "int"
                     },
                     {
                         "name": "inflectionPoint",
-                        "format": "int"
+                        "stack_type": "int"
                     }
                 ]
             },
