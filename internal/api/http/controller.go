@@ -462,7 +462,6 @@ func (c *Controller) GetAccounts(ctx *gin.Context) {
 		return
 	}
 
-	req.ExcludeColumn = []string{"IsActive"}
 	resp, err := c.svc.FilterAccounts(ctx, &req)
 	if err != nil {
 		internalErr(ctx, err)
@@ -470,7 +469,6 @@ func (c *Controller) GetAccounts(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, resp)
-
 }
 
 // AggregateAccounts godoc

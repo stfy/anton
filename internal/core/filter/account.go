@@ -45,8 +45,8 @@ type AccountsRes struct {
 }
 
 type AccountLatestReq struct {
-	ContractTypes abi.ContractName `form:"interface"`
-	Address       *addr.Address    // `form:"addresses"`
+	ContractType abi.ContractName `form:"interface"`
+	Address      *addr.Address    // `form:"addresses"`
 }
 
 type AccountInterfaceReq struct {
