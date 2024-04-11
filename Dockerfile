@@ -9,7 +9,7 @@ ENV TZ=Etc/UTC
 RUN apt-get update && \
     apt-get install -yqq \
       tzdata build-essential cmake clang openssl \
-      libssl-dev zlib1g-dev gperf wget git curl \
+      libssl-dev zlib1g-dev liblz4-dev gperf wget git curl \
       libreadline-dev ccache libmicrohttpd-dev ninja-build pkg-config \
       libsecp256k1-dev libsodium-dev
 
