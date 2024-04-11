@@ -622,6 +622,38 @@ func (c *Controller) GetTransactions(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, ret)
 }
 
+// GetTrace godoc
+//
+//	@Summary		transactions data
+//	@Description	Returns transactions, states and messages
+//	@Tags			transaction
+//	@Accept			json
+//	@Produce		json
+//	@Param   		hash				query	string  	false	"search by tx hash"
+//	@Success		200		{object}	filter.TransactionsRes
+//	@Router			/transactions [get]
+func (c *Controller) GetTrace(ctx *gin.Context) {
+	var req filter.TraceReq
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "tx_filter", err)
+		return
+	}
+
+	req.Hash, err = unmarshalBytes(ctx.Query("hash"))
+	if err != nil {
+		paramErr(ctx, "hash", err)
+		return
+	}
+	ret, err := c.svc.FilterTrace(ctx, &req)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+	ctx.IndentedJSON(http.StatusOK, ret)
+}
+
 // AggregateTransactionsHistory godoc
 //
 //	@Summary		aggregated transactions grouped by timestamp

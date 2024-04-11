@@ -2,7 +2,6 @@ package tx
 
 import (
 	"context"
-
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/go-clickhouse/ch"

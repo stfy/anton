@@ -2,6 +2,7 @@ package tx
 
 import (
 	"context"
+	"github.com/tonindexer/anton/addr"
 	"strings"
 
 	"github.com/uptrace/bun"
@@ -118,4 +119,58 @@ func (r *Repository) FilterTransactions(ctx context.Context, req *filter.Transac
 	}
 
 	return res, nil
+}
+
+func (r *Repository) trace(ctx context.Context, req *filter.TraceReq, result []*core.Transaction) (root *core.Transaction, ret []*core.Transaction, err error) {
+	q := r.pg.NewSelect().
+		Model(&ret).
+		Relation("InMsg").
+		Relation("OutMsg")
+
+	if len(req.Hash) > 0 {
+		q = q.Where("transaction.hash = ?", req.Hash)
+	}
+
+	if err = q.Scan(ctx); err != nil {
+		return nil, nil, err
+	}
+
+	if len(ret) > 0 {
+		if ret[0].InMsg.Type == core.ExternalIn {
+			return ret[0], result, nil
+		}
+
+		parentTx, err := r.filterTx(ctx, &filter.TransactionsReq{
+			Addresses: []*addr.Address{&ret[0].InMsg.SrcAddress},
+			CreatedLT: &ret[0].InMsg.SrcTxLT,
+			Limit:     1,
+		})
+
+		if err != nil {
+			return nil, nil, err
+		}
+
+		result = append(result, parentTx[0])
+
+		return r.trace(ctx, &filter.TraceReq{Hash: parentTx[0].Hash}, result)
+	}
+
+	return nil, result, err
+}
+
+func (r *Repository) FilterTrace(ctx context.Context, req *filter.TraceReq) (*filter.TraceRes, error) {
+	var (
+		res = new(filter.TraceRes)
+		txs []*core.Transaction
+		err error
+	)
+
+	res.Root, res.Rows, err = r.trace(ctx, req, txs)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Total = len(res.Rows)
+
+	return res, err
 }
