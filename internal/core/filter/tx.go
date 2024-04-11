@@ -30,11 +30,22 @@ type TransactionsReq struct {
 	Limit     int     `form:"limit"`
 }
 
+type TraceReq struct {
+	Hash []byte // `form:"hash"`
+}
+
 type TransactionsRes struct {
 	Total int                 `json:"total"`
 	Rows  []*core.Transaction `json:"results"`
 }
 
+type TraceRes struct {
+	Total int                 `json:"total"`
+	Root  *core.Transaction   `json:"root"`
+	Rows  []*core.Transaction `json:"results"`
+}
+
 type TransactionRepository interface {
 	FilterTransactions(context.Context, *TransactionsReq) (*TransactionsRes, error)
+	FilterTrace(context.Context, *TraceReq) (*TraceRes, error)
 }
