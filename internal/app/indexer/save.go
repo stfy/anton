@@ -171,8 +171,11 @@ func (s *Service) uniqMessages(transactions []*core.Transaction) []*core.Message
 			}
 			// some masterchain messages does not have source
 			if errors.Is(err, core.ErrNotFound) && !(msg.SrcAddress.Workchain() == -1 && msg.DstAddress.Workchain() == -1) {
-				panic(fmt.Errorf("unknown source message with dst tx hash %x on block (%d, %x, %d) from %s to %s",
-					msg.DstTxHash, msg.DstWorkchain, msg.DstShard, msg.DstBlockSeqNo, msg.SrcAddress.String(), msg.DstAddress.String()))
+				log.Error().
+					Err(fmt.Errorf("unknown source message with dst tx hash %x on block (%d, %x, %d) from %s to %s",
+						msg.DstTxHash, msg.DstWorkchain, msg.DstShard, msg.DstBlockSeqNo, msg.SrcAddress.String(), msg.DstAddress.String())).Msg("unknown source")
+
+				continue
 			}
 			if err == nil {
 				msg.SrcTxLT, msg.SrcShard, msg.SrcBlockSeqNo, msg.SrcState =
