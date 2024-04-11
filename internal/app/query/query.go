@@ -207,6 +207,10 @@ func (s *Service) FilterTransactions(ctx context.Context, req *filter.Transactio
 	return s.txRepo.FilterTransactions(ctx, req)
 }
 
+func (s *Service) FilterTrace(ctx context.Context, req *filter.TraceReq) (*filter.TraceRes, error) {
+	return s.txRepo.FilterTrace(ctx, req)
+}
+
 func (s *Service) AggregateTransactionsHistory(ctx context.Context, req *history.TransactionsReq) (*history.TransactionsRes, error) {
 	return s.txRepo.AggregateTransactionsHistory(ctx, req)
 }

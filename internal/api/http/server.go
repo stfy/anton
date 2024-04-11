@@ -27,6 +27,7 @@ type QueryController interface {
 	AggregateAccounts(*gin.Context)
 	AggregateAccountsHistory(*gin.Context)
 
+	GetTrace(*gin.Context)
 	GetTransactions(*gin.Context)
 	AggregateTransactionsHistory(*gin.Context)
 
@@ -67,6 +68,8 @@ func (s *Server) RegisterRoutes(t QueryController) {
 	base.GET("/accounts/aggregated", t.AggregateAccounts)
 	base.GET("/accounts/aggregated/history", t.AggregateAccountsHistory)
 	base.GET("/accounts/interface", t.GetAccountInterface)
+
+	base.GET("/trace", t.GetTrace)
 
 	base.GET("/transactions", t.GetTransactions)
 	base.GET("/transactions/aggregated/history", t.AggregateTransactionsHistory)
