@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/redis/rueidis"
 	"time"
 
 	"github.com/pkg/errors"
@@ -13,8 +14,9 @@ import (
 )
 
 type DB struct {
-	CH *ch.DB
-	PG *bun.DB
+	CH    *ch.DB
+	PG    *bun.DB
+	Redis rueidis.Client
 }
 
 func (db *DB) Close() {
@@ -25,7 +27,7 @@ func (db *DB) Close() {
 func ConnectDB(ctx context.Context, dsnCH, dsnPG string, opts ...ch.Option) (*DB, error) {
 	var err error
 
-	opts = append(opts, ch.WithDSN(dsnCH), ch.WithAutoCreateDatabase(true), ch.WithPoolSize(16))
+	opts = append(opts, ch.WithDSN(dsnCH), ch.WithAutoCreateDatabase(true), ch.WithPoolSize(16), ch.WithInsecure(true))
 	chDB := ch.Connect(opts...)
 
 	for i := 0; i < 8; i++ { // wait for ch start
@@ -54,4 +56,8 @@ func ConnectDB(ctx context.Context, dsnCH, dsnPG string, opts ...ch.Option) (*DB
 	}
 
 	return &DB{CH: chDB, PG: pgDB}, nil
+}
+
+func WithCache(db *DB, client rueidis.Client) {
+	db.Redis = client
 }

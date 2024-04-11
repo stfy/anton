@@ -2,17 +2,21 @@ package indexer
 
 import (
 	"fmt"
+	"github.com/allisson/go-env"
+	"github.com/pkg/errors"
+	"github.com/redis/rueidis"
+	"github.com/tonindexer/anton/internal/app/notifier"
+	"github.com/twmb/franz-go/pkg/kgo"
+	"github.com/twmb/franz-go/pkg/sasl/scram"
+	"github.com/urfave/cli/v2"
+	"github.com/xssnick/tonutils-go/liteclient"
+	"github.com/xssnick/tonutils-go/ton"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
-	"github.com/allisson/go-env"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
-	"github.com/xssnick/tonutils-go/liteclient"
-	"github.com/xssnick/tonutils-go/ton"
-
+	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/internal/app"
 	"github.com/tonindexer/anton/internal/app/fetcher"
 	"github.com/tonindexer/anton/internal/app/indexer"
@@ -29,13 +33,47 @@ var Command = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		chURL := env.GetString("DB_CH_URL", "")
 		pgURL := env.GetString("DB_PG_URL", "")
+		rsURL := env.GetString("REDIS_URL", "")
+
+		brokerSeeds := env.GetStringSlice("BROKER_URL", ",", []string{""})
+		kafkaOpts := []kgo.Opt{
+			kgo.SeedBrokers(brokerSeeds...),
+			kgo.AllowAutoTopicCreation(),
+			kgo.ProducerBatchMaxBytes(int32(104857600)),
+		}
+
+		if env.GetBool("KAFKA_SASL_ENABLED", true) {
+			kafkaOpts = append(
+				kafkaOpts,
+				kgo.SASL(
+					scram.Auth{
+						User: env.GetString("KAFKA_SASL_USERNAME", ""),
+						Pass: env.GetString("KAFKA_SASL_PASSWORD", ""),
+					}.AsSha256Mechanism(),
+				),
+			)
+		}
+
+		rsClient, err := rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{rsURL}})
+		if err != nil {
+			return errors.Wrap(err, "cannot connect redis client")
+		}
+		defer rsClient.Close()
+
+		cl, err := kgo.NewClient(kafkaOpts...)
+		if err = cl.Ping(ctx.Context); err != nil {
+			return errors.Wrap(err, "initialize kafka error")
+		}
 
 		conn, err := repository.ConnectDB(ctx.Context, chURL, pgURL)
 		if err != nil {
 			return errors.Wrap(err, "cannot connect to a database")
 		}
 
-		interfaces, err := contract.NewRepository(conn.PG).GetInterfaces(ctx.Context)
+		repository.WithCache(conn, rsClient)
+		contractRepo := contract.NewRepository(conn.PG)
+
+		interfaces, err := contractRepo.GetInterfaces(ctx.Context)
 		if err != nil {
 			return errors.Wrap(err, "get interfaces")
 		}
@@ -43,8 +81,17 @@ var Command = &cli.Command{
 			return errors.New("no contract interfaces")
 		}
 
+		def, err := contractRepo.GetDefinitions(ctx.Context)
+		if err != nil {
+			return errors.Wrap(err, "get definitions")
+		}
+		err = abi.RegisterDefinitions(def)
+		if err != nil {
+			return errors.Wrap(err, "get definitions")
+		}
+
 		client := liteclient.NewConnectionPool()
-		api := ton.NewAPIClient(client)
+		api := ton.NewAPIClient(client, ton.ProofCheckPolicyUnsafe).WithRetry()
 		for _, addr := range strings.Split(env.GetString("LITESERVERS", ""), ",") {
 			split := strings.Split(addr, "|")
 			if len(split) != 2 {
@@ -62,7 +109,7 @@ var Command = &cli.Command{
 
 		p := parser.NewService(&app.ParserConfig{
 			BlockchainConfig: bcConfig,
-			ContractRepo:     contract.NewRepository(conn.PG),
+			ContractRepo:     contractRepo,
 		})
 		f := fetcher.NewService(&app.FetcherConfig{
 			API:    api,
@@ -75,6 +122,7 @@ var Command = &cli.Command{
 			Fetcher:   f,
 			FromBlock: uint32(env.GetInt32("FROM_BLOCK", 1)),
 			Workers:   env.GetInt("WORKERS", 4),
+			Notifier:  notifier.NewKafkaNotifier(&notifier.KafkaConfig{Client: cl}),
 		})
 		if err = i.Start(); err != nil {
 			return err

@@ -2,7 +2,6 @@ package tx
 
 import (
 	"context"
-
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/go-clickhouse/ch"
@@ -110,9 +109,9 @@ func (r *Repository) AddTransactions(ctx context.Context, tx bun.Tx, transaction
 			return err
 		}
 	}
-	_, err := r.ch.NewInsert().Model(&transactions).Exec(ctx)
-	if err != nil {
-		return err
-	}
+	//_, err := r.ch.NewInsert().Model(&transactions).Exec(ctx)
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }

@@ -74,6 +74,7 @@ type AccountState struct {
 	CodeHash  []byte `bun:"type:bytea" json:"code_hash,omitempty"`
 	Data      []byte `bun:"type:bytea" json:"data,omitempty"`
 	DataHash  []byte `bun:"type:bytea" json:"data_hash,omitempty"`
+	Libraries []byte `bun:"type:bytea" json:"libraries,omitempty"`
 
 	GetMethodHashes []int32 `ch:"type:Array(UInt32)" bun:"type:integer[]" json:"get_method_hashes,omitempty"`
 
@@ -104,6 +105,10 @@ type LatestAccountState struct {
 
 func SkipAddress(a addr.Address) bool {
 	switch a.Base64() {
+	case "EQCaaHxc7o-pMaaGoj8g25EaZHHZIYjkbYgfxRLD3v4vqqIr": // eche odno ebanoe nft
+		return true
+	case "EQDxC-4X-68FBRGm3C9Jxf2wpbCY3HfL40dAgVcjqLIiGKjk": // ebanoe nft
+		return true
 	case "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c": // burn address
 		return true
 	case "Ef8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAU": // system contract

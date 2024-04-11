@@ -47,11 +47,12 @@ func (s *Service) callGetMethod(ctx context.Context, d *abi.GetMethodDesc, acc *
 		})
 	}
 
-	codeBase64, dataBase64 :=
+	codeBase64, dataBase64, librariesBase64 :=
 		base64.StdEncoding.EncodeToString(acc.Code),
-		base64.StdEncoding.EncodeToString(acc.Data)
+		base64.StdEncoding.EncodeToString(acc.Data),
+		base64.StdEncoding.EncodeToString(acc.Libraries)
 
-	e, err := abi.NewEmulatorBase64(acc.Address.MustToTonutils(), codeBase64, dataBase64, s.bcConfigBase64)
+	e, err := abi.NewEmulatorBase64(acc.Address.MustToTonutils(), codeBase64, dataBase64, s.bcConfigBase64, librariesBase64)
 	if err != nil {
 		return ret, errors.Wrap(err, "new emulator")
 	}
@@ -248,7 +249,12 @@ func (s *Service) callPossibleGetMethods( //nolint:gocognit // yeah, it's too lo
 			exec, err := s.callGetMethodNoArgs(ctx, i, d.Name, acc)
 			if err != nil {
 				log.Error().Err(err).Str("contract_name", string(i.Name)).Str("get_method", d.Name).Msg("execute get-method")
-				return
+
+				if d.Optional {
+					continue
+				}
+
+				continue
 			}
 
 			acc.ExecutedGetMethods[i.Name] = append(acc.ExecutedGetMethods[i.Name], exec)
@@ -273,9 +279,9 @@ func (s *Service) callPossibleGetMethods( //nolint:gocognit // yeah, it's too lo
 					log.Error().Err(err).Msg("get nft collection state")
 					return
 				}
+
 				s.getNFTItemContent(ctx, collection, exec.Returns[1].(*big.Int), exec.Returns[4].(*cell.Cell), acc) //nolint:forcetypeassert // panic on wrong interface
 				s.checkNFTMinter(ctx, collection, exec.Returns[1].(*big.Int), acc)                                  //nolint:forcetypeassert // panic on wrong interface
-
 			case "get_jetton_data":
 				mapContentDataNFT(acc, exec.Returns[3])
 

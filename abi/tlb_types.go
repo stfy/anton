@@ -1,6 +1,8 @@
 package abi
 
 import (
+	"encoding/json"
+	"fmt"
 	"math/big"
 	"reflect"
 
@@ -11,7 +13,27 @@ import (
 	"github.com/xssnick/tonutils-go/tvm/cell"
 )
 
-const structTypeName = "struct"
+func init() {
+	tlb.Register(MarketOrder{})
+	tlb.Register(LimitOrder{})
+	tlb.Register(StopOrder{})
+	tlb.Register(TakeOrder{})
+}
+
+type TLBType string
+
+const (
+	TLBAddr        TLBType = "addr"
+	TLBBool        TLBType = "bool"
+	TLBBigInt      TLBType = "bigInt"
+	TLBString      TLBType = "string"
+	TLBBytes       TLBType = "bytes"
+	TLBCell        TLBType = "cell"
+	TLBSlice       TLBType = "slice"
+	TLBContentCell TLBType = "content"
+	TLBStructCell  TLBType = "struct"
+	TLBTag         TLBType = "tag"
+)
 
 type TelemintText struct {
 	Len  uint8  // ## 8
@@ -46,32 +68,266 @@ func (x *StringSnake) LoadFromCell(loader *cell.Slice) error {
 	return nil
 }
 
-var (
-	typeNameRMap = map[reflect.Type]string{
-		reflect.TypeOf([]uint8{}): "bytes",
-	}
-	typeNameMap = map[string]reflect.Type{
-		"bool":         reflect.TypeOf(false),
-		"int8":         reflect.TypeOf(int8(0)),
-		"int16":        reflect.TypeOf(int16(0)),
-		"int32":        reflect.TypeOf(int32(0)),
-		"int64":        reflect.TypeOf(int64(0)),
-		"uint8":        reflect.TypeOf(uint8(0)),
-		"uint16":       reflect.TypeOf(uint16(0)),
-		"uint32":       reflect.TypeOf(uint32(0)),
-		"uint64":       reflect.TypeOf(uint64(0)),
-		"bytes":        reflect.TypeOf([]byte{}),
-		"bigInt":       reflect.TypeOf(big.NewInt(0)),
-		"cell":         reflect.TypeOf((*cell.Cell)(nil)),
-		"dict":         reflect.TypeOf((*cell.Dictionary)(nil)),
-		"magic":        reflect.TypeOf(tlb.Magic{}),
-		"coins":        reflect.TypeOf(tlb.Coins{}),
-		"addr":         reflect.TypeOf((*address.Address)(nil)),
-		"string":       reflect.TypeOf((*StringSnake)(nil)),
-		"telemintText": reflect.TypeOf((*TelemintText)(nil)),
+type Opcode string
+
+func (c *Opcode) LoadFromCell(loader *cell.Slice) error {
+	l, err := loader.LoadUInt(32)
+
+	if err != nil {
+		return errors.Wrap(err, "load len uint32")
 	}
 
-	registeredDefinitions = map[string]TLBFieldsDesc{}
+	*c = Opcode(fmt.Sprintf("0x%x", l))
+
+	return nil
+}
+
+type LimitOrderData struct {
+	Expiration       uint32     `tlb:"## 32" json:"expiration"`
+	Direction        uint       `tlb:"## 1" json:"direction"`
+	Amount           *tlb.Coins `tlb:"." json:"amount"`
+	Leverage         uint64     `tlb:"## 64" json:"leverage"`
+	LimitPrice       *tlb.Coins `tlb:"." json:"limit_price"`
+	StopPrice        *tlb.Coins `tlb:"." json:"stop_price"`
+	StopTriggerPrice *tlb.Coins `tlb:"." json:"stop_trigger_price"`
+	TakeTriggerPrice *tlb.Coins `tlb:"." json:"take_trigger_price"`
+}
+
+type StopOrderData struct {
+	Expiration   uint32     `tlb:"## 32" json:"expiration"`
+	Direction    uint       `tlb:"## 1" json:"direction"`
+	Amount       *tlb.Coins `tlb:"." json:"amount"`
+	TriggerPrice *tlb.Coins `tlb:"." json:"limit_price"`
+}
+
+type AnyOrder interface {
+	AsStopOrder() *StopOrderData
+	AsLimitOrder() *LimitOrderData
+}
+
+type OrderType int
+
+const (
+	StopOrderType OrderType = iota
+	TakeOrderType
+	LimitOrderType
+	MarketOrderType
+)
+
+func (t OrderType) String() string {
+	switch t {
+	case StopOrderType:
+		return "stopLoss"
+	case TakeOrderType:
+		return "takeProfit"
+	case LimitOrderType:
+		return "limit"
+	case MarketOrderType:
+		return "market"
+	}
+
+	panic("unknown order type")
+}
+
+type Order struct {
+	Value AnyOrder `tlb:"[StopOrder,TakeOrder,LimitOrder,MarketOrder]"`
+}
+
+func (o Order) GetType() OrderType {
+	switch o.Value.(type) {
+	case StopOrder, *StopOrder:
+		return StopOrderType
+	case TakeOrder, *TakeOrder:
+		return TakeOrderType
+	case LimitOrder, *LimitOrder:
+		return LimitOrderType
+	case MarketOrder, *MarketOrder:
+		return MarketOrderType
+	}
+
+	panic("unexpected order type")
+}
+
+func (o Order) MarshalJSON() ([]byte, error) {
+	switch o.GetType() {
+	case LimitOrderType, MarketOrderType:
+		return json.Marshal(struct {
+			*LimitOrderData
+			Type any `json:"type"`
+		}{
+			Type:           o.GetType(),
+			LimitOrderData: o.Value.AsLimitOrder(),
+		})
+	case StopOrderType, TakeOrderType:
+		return json.Marshal(struct {
+			*StopOrderData
+			Type any `json:"type"`
+		}{
+			Type:          o.GetType(),
+			StopOrderData: o.Value.AsStopOrder(),
+		})
+	}
+
+	return nil, nil
+}
+
+type StopOrder struct {
+	_       tlb.Magic     `tlb:"$0000"`
+	Payload StopOrderData `tlb:"."`
+}
+
+func (s StopOrder) AsStopOrder() *StopOrderData {
+	return &s.Payload
+}
+
+func (s StopOrder) AsLimitOrder() *LimitOrderData {
+	return nil
+}
+
+type TakeOrder struct {
+	_       tlb.Magic     `tlb:"$0001"`
+	Payload StopOrderData `tlb:"."`
+}
+
+func (s TakeOrder) AsStopOrder() *StopOrderData {
+	return &s.Payload
+}
+
+func (s TakeOrder) AsLimitOrder() *LimitOrderData {
+	return nil
+}
+
+type LimitOrder struct {
+	_       tlb.Magic      `tlb:"$0010"`
+	Payload LimitOrderData `tlb:"."`
+}
+
+func (s LimitOrder) AsStopOrder() *StopOrderData {
+	return nil
+}
+
+func (s LimitOrder) AsLimitOrder() *LimitOrderData {
+	return &s.Payload
+}
+
+type MarketOrder struct {
+	_       tlb.Magic      `tlb:"$0011"`
+	Payload LimitOrderData `tlb:"."`
+}
+
+func (s MarketOrder) AsStopOrder() *StopOrderData {
+	return nil
+}
+
+func (s MarketOrder) AsLimitOrder() *LimitOrderData {
+	return &s.Payload
+}
+
+type Orders map[int]Order
+
+func (o *Orders) LoadFromCell(loader *cell.Slice) error {
+	d, err := loader.LoadDict(3)
+
+	if err != nil {
+		return err
+	}
+
+	ret := map[int]Order{}
+
+	for _, item := range d.All() {
+		v := Order{}
+
+		key, err := item.Key.BeginParse().LoadUInt(3)
+
+		if err != nil {
+			return err
+		}
+
+		ref, err := item.Value.BeginParse().LoadRef()
+
+		if err != nil {
+			return err
+		}
+
+		if err = tlb.LoadFromCell(&v, ref); err != nil {
+			return err
+		}
+
+		ret[int(key)] = v
+	}
+
+	*o = ret
+
+	return nil
+}
+
+type NftBalancesHashMap struct {
+	Value map[*address.Address]uint64
+}
+
+func (hm *NftBalancesHashMap) MarshalJSON() ([]byte, error) {
+	ret := map[string]uint64{}
+
+	for k, v := range hm.Value {
+		ret[k.String()] = v
+	}
+
+	return json.Marshal(ret)
+}
+
+func (hm *NftBalancesHashMap) LoadFromCell(loader *cell.Slice) error {
+	d, err := loader.ToDict(256)
+
+	if err != nil {
+		return err
+	}
+
+	ret := make(map[*address.Address]uint64)
+
+	for _, kv := range d.All() {
+		k := kv.Key.BeginParse().MustLoadSlice(256)
+
+		addr := address.NewAddress(0, 0, k)
+		v := kv.Value.BeginParse().MustLoadCoins()
+
+		ret[addr] = v
+	}
+
+	hm.Value = ret
+
+	return nil
+}
+
+var (
+	typeNameRMap = map[reflect.Type]TLBType{
+		reflect.TypeOf([]uint8{}): TLBBytes,
+	}
+	typeNameMap = map[TLBType]reflect.Type{
+		TLBBool:                reflect.TypeOf(false),
+		"int8":                 reflect.TypeOf(int8(0)),
+		"int16":                reflect.TypeOf(int16(0)),
+		"int32":                reflect.TypeOf(int32(0)),
+		"int64":                reflect.TypeOf(int64(0)),
+		"uint8":                reflect.TypeOf(uint8(0)),
+		"uint16":               reflect.TypeOf(uint16(0)),
+		"uint32":               reflect.TypeOf(uint32(0)),
+		"uint64":               reflect.TypeOf(uint64(0)),
+		TLBBytes:               reflect.TypeOf([]byte{}),
+		TLBBigInt:              reflect.TypeOf(big.NewInt(0)),
+		TLBCell:                reflect.TypeOf((*cell.Cell)(nil)),
+		"dict":                 reflect.TypeOf((*cell.Dictionary)(nil)),
+		TLBTag:                 reflect.TypeOf(tlb.Magic{}),
+		"opcode":               reflect.TypeOf((*Opcode)(nil)),
+		"coins":                reflect.TypeOf(tlb.Coins{}),
+		TLBAddr:                reflect.TypeOf((*address.Address)(nil)),
+		TLBString:              reflect.TypeOf((*StringSnake)(nil)),
+		"telemintText":         reflect.TypeOf((*TelemintText)(nil)),
+		"order":                reflect.TypeOf((*Order)(nil)),
+		"orders":               reflect.TypeOf((*Orders)(nil)),
+		"nft_balances_hashmap": reflect.TypeOf((*NftBalancesHashMap)(nil)),
+	}
+
+	registeredDefinitions = map[TLBType]TLBFieldsDesc{}
 )
 
 func init() {

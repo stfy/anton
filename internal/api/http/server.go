@@ -22,9 +22,12 @@ type QueryController interface {
 	GetLabels(*gin.Context)
 
 	GetAccounts(*gin.Context)
+	GetLatestAccounts(*gin.Context)
+	GetAccountInterface(*gin.Context)
 	AggregateAccounts(*gin.Context)
 	AggregateAccountsHistory(*gin.Context)
 
+	GetTrace(*gin.Context)
 	GetTransactions(*gin.Context)
 	AggregateTransactionsHistory(*gin.Context)
 
@@ -34,6 +37,7 @@ type QueryController interface {
 
 	GetInterfaces(*gin.Context)
 	GetOperations(*gin.Context)
+	GetDefinitions(*gin.Context)
 }
 
 type Server struct {
@@ -60,8 +64,12 @@ func (s *Server) RegisterRoutes(t QueryController) {
 	base.GET("/labels/categories", t.GetLabelCategories)
 
 	base.GET("/accounts", t.GetAccounts)
+	base.GET("/accounts/latest", t.GetLatestAccounts)
 	base.GET("/accounts/aggregated", t.AggregateAccounts)
 	base.GET("/accounts/aggregated/history", t.AggregateAccountsHistory)
+	base.GET("/accounts/interface", t.GetAccountInterface)
+
+	base.GET("/trace", t.GetTrace)
 
 	base.GET("/transactions", t.GetTransactions)
 	base.GET("/transactions/aggregated/history", t.AggregateTransactionsHistory)
@@ -75,6 +83,7 @@ func (s *Server) RegisterRoutes(t QueryController) {
 
 	base.GET("/contracts/interfaces", t.GetInterfaces)
 	base.GET("/contracts/operations", t.GetOperations)
+	base.GET("/contracts/definitions", t.GetDefinitions)
 
 	base.GET("/swagger/*any", ginSwagger.WrapHandler(
 		swaggerFiles.Handler,
@@ -84,6 +93,7 @@ func (s *Server) RegisterRoutes(t QueryController) {
 	base.GET("/swagger", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, basePath+"/swagger/index.html")
 	})
+
 }
 
 func (s *Server) Run() error {

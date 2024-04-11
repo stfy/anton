@@ -3,6 +3,7 @@ package indexer
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/pkg/errors"
@@ -29,6 +30,8 @@ func (s *Service) insertData(
 		_ = dbTx.Rollback()
 	}()
 
+	parsedMessages := make([]*core.Message, 0)
+
 	for _, message := range msg {
 		err := s.Parser.ParseMessagePayload(ctx, message)
 		if errors.Is(err, app.ErrImpossibleParsing) {
@@ -44,7 +47,13 @@ func (s *Service) insertData(
 				Uint32("op_id", message.OperationID).
 				Msg("parse message payload")
 		}
+
+		parsedMessages = append(parsedMessages, message)
 	}
+
+	sort.Slice(parsedMessages, func(i, j int) bool {
+		return parsedMessages[i].CreatedLT < parsedMessages[j].CreatedLT
+	})
 
 	if err := func() error {
 		defer app.TimeTrack(time.Now(), "AddAccountStates(%d)", len(acc))
@@ -74,6 +83,13 @@ func (s *Service) insertData(
 		return errors.Wrap(err, "add blocks")
 	}
 
+	if err := func() error {
+		defer app.TimeTrack(time.Now(), "NotifyMessages(%d)", len(parsedMessages))
+		return s.Notifier.NotifyMessages(ctx, parsedMessages)
+	}(); err != nil {
+		return errors.Wrap(err, "notify messages")
+	}
+
 	if err := dbTx.Commit(); err != nil {
 		return errors.Wrap(err, "cannot commit db tx")
 	}
@@ -84,17 +100,22 @@ func (s *Service) insertData(
 func (s *Service) uniqAccounts(transactions []*core.Transaction) []*core.AccountState {
 	var ret []*core.AccountState
 
-	uniqAcc := make(map[addr.Address]*core.AccountState)
+	uniqAcc := make(map[addr.Address]map[uint64]*core.AccountState)
 
-	for j := range transactions {
-		tx := transactions[j]
-		if tx.Account != nil {
-			uniqAcc[tx.Account.Address] = tx.Account
+	for _, tx := range transactions {
+		if tx.Account == nil {
+			continue
 		}
+		if uniqAcc[tx.Account.Address] == nil {
+			uniqAcc[tx.Account.Address] = map[uint64]*core.AccountState{}
+		}
+		uniqAcc[tx.Account.Address][tx.Account.LastTxLT] = tx.Account
 	}
 
-	for _, a := range uniqAcc {
-		ret = append(ret, a)
+	for _, accounts := range uniqAcc {
+		for _, a := range accounts {
+			ret = append(ret, a)
+		}
 	}
 
 	return ret
@@ -150,8 +171,11 @@ func (s *Service) uniqMessages(transactions []*core.Transaction) []*core.Message
 			}
 			// some masterchain messages does not have source
 			if errors.Is(err, core.ErrNotFound) && !(msg.SrcAddress.Workchain() == -1 && msg.DstAddress.Workchain() == -1) {
-				panic(fmt.Errorf("unknown source message with dst tx hash %x on block (%d, %x, %d) from %s to %s",
-					msg.DstTxHash, msg.DstWorkchain, msg.DstShard, msg.DstBlockSeqNo, msg.SrcAddress.String(), msg.DstAddress.String()))
+				log.Error().
+					Err(fmt.Errorf("unknown source message with dst tx hash %x on block (%d, %x, %d) from %s to %s",
+						msg.DstTxHash, msg.DstWorkchain, msg.DstShard, msg.DstBlockSeqNo, msg.SrcAddress.String(), msg.DstAddress.String())).Msg("unknown source")
+
+				continue
 			}
 			if err == nil {
 				msg.SrcTxLT, msg.SrcShard, msg.SrcBlockSeqNo, msg.SrcState =

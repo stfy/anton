@@ -2,6 +2,8 @@ package web
 
 import (
 	"fmt"
+	"github.com/redis/rueidis"
+	"github.com/tonindexer/anton/internal/app/parser"
 	"os"
 	"os/signal"
 	"strings"
@@ -13,10 +15,12 @@ import (
 	"github.com/xssnick/tonutils-go/liteclient"
 	"github.com/xssnick/tonutils-go/ton"
 
+	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/internal/api/http"
 	"github.com/tonindexer/anton/internal/app"
 	"github.com/tonindexer/anton/internal/app/query"
 	"github.com/tonindexer/anton/internal/core/repository"
+	"github.com/tonindexer/anton/internal/core/repository/contract"
 )
 
 var Command = &cli.Command{
@@ -26,6 +30,13 @@ var Command = &cli.Command{
 	Action: func(ctx *cli.Context) error {
 		chURL := env.GetString("DB_CH_URL", "")
 		pgURL := env.GetString("DB_PG_URL", "")
+		rsURL := env.GetString("REDIS_URL", "")
+
+		rsClient, err := rueidis.NewClient(rueidis.ClientOption{InitAddress: []string{rsURL}})
+		if err != nil {
+			return errors.Wrap(err, "cannot connect redis client")
+		}
+		defer rsClient.Close()
 
 		conn, err := repository.ConnectDB(
 			ctx.Context, chURL, pgURL)
@@ -33,8 +44,20 @@ var Command = &cli.Command{
 			return errors.Wrap(err, "cannot connect to a database")
 		}
 
+		repository.WithCache(conn, rsClient)
+		contractRepo := contract.NewRepository(conn.PG)
+
+		def, err := contractRepo.GetDefinitions(ctx.Context)
+		if err != nil {
+			return errors.Wrap(err, "get definitions")
+		}
+		err = abi.RegisterDefinitions(def)
+		if err != nil {
+			return errors.Wrap(err, "get definitions")
+		}
+
 		client := liteclient.NewConnectionPool()
-		api := ton.NewAPIClient(client)
+		api := ton.NewAPIClient(client, ton.ProofCheckPolicyUnsafe).WithRetry()
 		for _, addr := range strings.Split(env.GetString("LITESERVERS", ""), ",") {
 			split := strings.Split(addr, "|")
 			if len(split) != 2 {
@@ -46,6 +69,15 @@ var Command = &cli.Command{
 			}
 		}
 
+		bcConfig, err := app.GetBlockchainConfig(ctx.Context, api)
+		if err != nil {
+			return errors.Wrap(err, "cannot get blockchain config")
+		}
+
+		p := parser.NewService(&app.ParserConfig{
+			BlockchainConfig: bcConfig,
+			ContractRepo:     contractRepo,
+		})
 		qs, err := query.NewService(ctx.Context, &app.QueryConfig{
 			DB:  conn,
 			API: api,
@@ -57,7 +89,7 @@ var Command = &cli.Command{
 		srv := http.NewServer(
 			env.GetString("LISTEN", "0.0.0.0:80"),
 		)
-		srv.RegisterRoutes(http.NewController(qs))
+		srv.RegisterRoutes(http.NewController(qs, p, api))
 
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

@@ -1,0 +1,43 @@
+FROM golang:1.20-bullseye as builder
+
+RUN apt-get update && \
+    apt-get install -y libsecp256k1-0 libsodium23
+
+#prepare env
+WORKDIR /go/src/github.com/tonindexer/anton
+
+# download dependencies
+COPY go.mod go.sum /go/src/github.com/tonindexer/anton/
+RUN go mod download
+
+RUN go install github.com/swaggo/swag/cmd/swag@v1.8.10
+
+# copy application code
+COPY migrations /go/src/github.com/tonindexer/anton/migrations
+COPY cmd /go/src/github.com/tonindexer/anton/cmd
+COPY addr /go/src/github.com/tonindexer/anton/addr
+COPY abi /go/src/github.com/tonindexer/anton/abi
+COPY internal /go/src/github.com/tonindexer/anton/internal
+COPY main.go /go/src/github.com/tonindexer/anton
+
+RUN swag init \
+        --output api/http --generalInfo internal/api/http/controller.go \
+        --parseDependency --parseInternal
+
+RUN go build -o /anton /go/src/github.com/tonindexer/anton
+
+FROM ubuntu:20.04 as runner
+
+RUN apt-get update && \
+    apt-get install -y openssl ca-certificates libsecp256k1-0 libsodium23 && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /go/pkg/mod/github.com/tonkeeper/tongo*/lib/linux /app/lib/
+COPY --from=builder /go/src/github.com/tonindexer/anton/abi/known /var/anton/known
+COPY --from=builder /anton /usr/bin/anton
+
+ENV LD_LIBRARY_PATH=/app/lib/
+ENV LISTEN=0.0.0.0:8080
+EXPOSE 8080
+
+ENTRYPOINT ["/usr/bin/anton"]

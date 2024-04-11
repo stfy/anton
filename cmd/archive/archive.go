@@ -52,14 +52,14 @@ var Command = &cli.Command{
 				continue
 			}
 
-			api := ton.NewAPIClient(client)
+			api := ton.NewAPIClient(client, ton.ProofCheckPolicyUnsafe).WithRetry()
 
 			master, err := api.GetMasterchainInfo(ctx.Context)
 			if err != nil {
 				continue
 			}
 
-			_, err = api.LookupBlock(ctx.Context, master.Workchain, master.Shard, 3)
+			_, err = api.LookupBlock(ctx.Context, master.Workchain, master.Shard, master.SeqNo-1)
 			if err != nil {
 				continue
 			}

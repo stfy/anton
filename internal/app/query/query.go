@@ -2,10 +2,10 @@ package query
 
 import (
 	"context"
-
 	"github.com/pkg/errors"
 	"github.com/xssnick/tonutils-go/ton"
 
+	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/addr"
 	"github.com/tonindexer/anton/internal/app"
 	"github.com/tonindexer/anton/internal/app/fetcher"
@@ -37,14 +37,26 @@ func NewService(_ context.Context, cfg *app.QueryConfig) (*Service, error) {
 	var s = new(Service)
 
 	s.QueryConfig = cfg
-	ch, pg := s.DB.CH, s.DB.PG
+	ch, pg, rs := s.DB.CH, s.DB.PG, s.DB.Redis
 	s.txRepo = tx.NewRepository(ch, pg)
 	s.msgRepo = msg.NewRepository(ch, pg)
 	s.blockRepo = block.NewRepository(ch, pg)
-	s.accountRepo = account.NewRepository(ch, pg)
+	s.accountRepo = account.NewRepository(ch, pg, rs)
 	s.contractRepo = contract.NewRepository(pg)
 
+	interfaces, err := s.contractRepo.GetInterfaces(context.Background())
+	if err != nil {
+		return nil, errors.Wrap(err, "get interfaces")
+	}
+	if len(interfaces) == 0 {
+		return nil, errors.New("no contract interfaces")
+	}
+
 	return s, nil
+}
+
+func (s *Service) GetDefinitions(ctx context.Context) (map[abi.TLBType]abi.TLBFieldsDesc, error) {
+	return s.contractRepo.GetDefinitions(ctx)
 }
 
 func (s *Service) GetStatistics(ctx context.Context) (*aggregate.Statistics, error) {
@@ -167,6 +179,19 @@ func (s *Service) FilterAccounts(ctx context.Context, req *filter.AccountsReq) (
 	if err := s.addGetMethodDescription(ctx, res.Rows); err != nil {
 		return nil, err
 	}
+
+	return res, nil
+}
+
+func (s *Service) FilterLatestAccounts(ctx context.Context, req *filter.AccountLatestReq) (*filter.AccountsRes, error) {
+	res, err := s.accountRepo.FilterLatestAccounts(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.addGetMethodDescription(ctx, res.Rows); err != nil {
+		return nil, err
+	}
+
 	return res, nil
 }
 
@@ -180,6 +205,10 @@ func (s *Service) AggregateAccountsHistory(ctx context.Context, req *history.Acc
 
 func (s *Service) FilterTransactions(ctx context.Context, req *filter.TransactionsReq) (*filter.TransactionsRes, error) {
 	return s.txRepo.FilterTransactions(ctx, req)
+}
+
+func (s *Service) FilterTrace(ctx context.Context, req *filter.TraceReq) (*filter.TraceRes, error) {
+	return s.txRepo.FilterTrace(ctx, req)
 }
 
 func (s *Service) AggregateTransactionsHistory(ctx context.Context, req *history.TransactionsReq) (*history.TransactionsRes, error) {

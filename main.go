@@ -1,10 +1,10 @@
 package main
 
+import "C"
 import (
-	"os"
-
 	"github.com/allisson/go-env"
 	"github.com/urfave/cli/v2"
+	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

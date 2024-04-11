@@ -3,12 +3,12 @@ package account
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/pkg/errors"
+	cache "github.com/tonindexer/anton/internal/app/latest"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/go-clickhouse/ch"
+	"strings"
 
 	"github.com/tonindexer/anton/internal/core"
 	"github.com/tonindexer/anton/internal/core/filter"
@@ -83,6 +83,11 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 		latest              []*core.LatestAccountState
 	)
 
+	if f.ForceCache && f.LatestState {
+		// only 1 type allowed
+		return cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes[0])
+	}
+
 	// choose table to filter states by
 	// and optionally join account data
 	if f.LatestState {
@@ -145,6 +150,29 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 		}
 	}
 
+	if f.LatestState {
+		for i := range ret {
+			if err := cache.AddAccount(ctx, r.rs, ret[i]); err != nil {
+				fmt.Println("redis err", err)
+			}
+		}
+	}
+
+	return ret, err
+}
+
+func (r *Repository) filterLatestAccountStates(ctx context.Context, f *filter.AccountLatestReq) (ret []*core.AccountState, err error) {
+	if f.Address == nil {
+		ret, err = cache.GetLatestAccounts(ctx, r.rs, f.ContractType)
+	} else {
+		res, err := cache.GetLatestAccount(ctx, r.rs, string(f.ContractType), f.Address.String())
+		if err != nil {
+			return nil, err
+		}
+
+		ret = append(ret, res)
+	}
+
 	return ret, err
 }
 
@@ -191,15 +219,21 @@ func (r *Repository) FilterAccounts(ctx context.Context, f *filter.AccountsReq) 
 		f.Limit = 3
 	}
 
-	res.Total, err = r.countAccountStates(ctx, f)
+	res.Rows, err = r.filterAccountStates(ctx, f, res.Total)
 	if err != nil {
 		return res, err
 	}
-	if res.Total == 0 {
-		return res, nil
-	}
 
-	res.Rows, err = r.filterAccountStates(ctx, f, res.Total)
+	return res, nil
+}
+
+func (r *Repository) FilterLatestAccounts(ctx context.Context, f *filter.AccountLatestReq) (*filter.AccountsRes, error) {
+	var (
+		res = new(filter.AccountsRes)
+		err error
+	)
+
+	res.Rows, err = r.filterLatestAccountStates(ctx, f)
 	if err != nil {
 		return res, err
 	}

@@ -1,22 +1,24 @@
 package http
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/hex"
-	"net/http"
-	"strconv"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-
+	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/addr"
 	"github.com/tonindexer/anton/internal/app"
+	"github.com/tonindexer/anton/internal/app/fetcher"
 	"github.com/tonindexer/anton/internal/core"
 	"github.com/tonindexer/anton/internal/core/aggregate"
 	"github.com/tonindexer/anton/internal/core/aggregate/history"
 	"github.com/tonindexer/anton/internal/core/filter"
+	"github.com/xssnick/tonutils-go/ton"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
 // @title      		Anton
@@ -38,11 +40,13 @@ var basePath = "/api/v0"
 var _ QueryController = (*Controller)(nil)
 
 type Controller struct {
-	svc app.QueryService
+	svc    app.QueryService
+	parser app.ParserService
+	API    ton.APIClientWrapped
 }
 
-func NewController(svc app.QueryService) *Controller {
-	return &Controller{svc: svc}
+func NewController(svc app.QueryService, parser app.ParserService, api ton.APIClientWrapped) *Controller {
+	return &Controller{svc: svc, parser: parser, API: api}
 }
 
 func paramErr(ctx *gin.Context, param string, err error) {
@@ -191,6 +195,29 @@ func (c *Controller) GetOperations(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, GetOperationsRes{Total: len(ret), Results: ret})
 }
 
+type GetDefinitionsRes struct {
+	Total   int                               `json:"total"`
+	Results map[abi.TLBType]abi.TLBFieldsDesc `json:"results"`
+}
+
+// GetDefinitions godoc
+//
+//	@Summary		struct definitions
+//	@Description	Returns definitions used in messages and get-methods parsing
+//	@Tags			contract
+//	@Accept			json
+//	@Produce		json
+//	@Success		200		{object}		GetDefinitionsRes
+//	@Router			/contracts/definitions [get]
+func (c *Controller) GetDefinitions(ctx *gin.Context) {
+	ret, err := c.svc.GetDefinitions(ctx)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+	ctx.IndentedJSON(http.StatusOK, GetDefinitionsRes{Total: len(ret), Results: ret})
+}
+
 // GetBlocks godoc
 //
 //	@Summary		block info
@@ -305,6 +332,84 @@ func (c *Controller) GetLabels(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, ret)
 }
 
+func (c *Controller) GetAccountInterface(ctx *gin.Context) {
+	var req filter.AccountInterfaceReq
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "account_filter", err)
+		return
+	}
+
+	req.Address, err = unmarshalAddress(ctx.Query("address"))
+	if err != nil {
+		paramErr(ctx, "address", err)
+		return
+	}
+
+	res, err := c.svc.FilterAccounts(
+		ctx,
+		&filter.AccountsReq{Addresses: []*addr.Address{req.Address}, LatestState: true},
+	)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+
+	if len(res.Rows) == 0 {
+		internalErr(ctx, errors.New("not found"))
+		return
+	}
+
+	// sometimes, to parse the full account data we need to get other contracts states
+	// for example, to get nft item data
+	getOtherAccount := func(ctx context.Context, a addr.Address) (*core.AccountState, error) {
+		b, err := c.API.GetMasterchainInfo(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		raw, err := c.API.GetAccount(ctx, b, a.MustToTonutils())
+		if err == nil {
+			return fetcher.MapAccount(b, raw), nil
+		}
+
+		return nil, errors.Wrapf(core.ErrNotFound, "cannot find %s account state", a.Base64())
+	}
+
+	err = c.parser.ParseAccountData(ctx, res.Rows[0], getOtherAccount)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, res)
+}
+
+func (c *Controller) GetLatestAccounts(ctx *gin.Context) {
+	var req filter.AccountLatestReq
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "account_filter", err)
+		return
+	}
+
+	req.Address, err = unmarshalAddress(ctx.Query("address"))
+	if err != nil {
+		paramErr(ctx, "address", err)
+		return
+	}
+
+	res, err := c.svc.FilterLatestAccounts(ctx, &req)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, res)
+}
+
 // GetAccounts godoc
 //
 //	@Summary		account data
@@ -357,13 +462,13 @@ func (c *Controller) GetAccounts(ctx *gin.Context) {
 		return
 	}
 
-	ret, err := c.svc.FilterAccounts(ctx, &req)
+	resp, err := c.svc.FilterAccounts(ctx, &req)
 	if err != nil {
 		internalErr(ctx, err)
 		return
 	}
 
-	ctx.IndentedJSON(http.StatusOK, ret)
+	ctx.JSON(http.StatusOK, resp)
 }
 
 // AggregateAccounts godoc
@@ -373,7 +478,8 @@ func (c *Controller) GetAccounts(ctx *gin.Context) {
 //	@Tags			account
 //	@Accept			json
 //	@Produce		json
-//	@Param   		minter_address		query	string  	true	"NFT collection or FT master address"
+//	@Param   		address				query	string  	false	"address on which statistics are calculated"
+//	@Param   		minter_address		query	string  	false	"NFT collection or FT master address"
 //	@Param   		limit	     		query   int 		false	"limit"									default(25) maximum(1000000)
 //	@Success		200		{object}	aggregate.AccountsRes
 //	@Router			/accounts/aggregated [get]
@@ -387,6 +493,12 @@ func (c *Controller) AggregateAccounts(ctx *gin.Context) {
 	}
 	if req.Limit > 1000000 {
 		paramErr(ctx, "limit", errors.Wrapf(core.ErrInvalidArg, "limit is too big"))
+		return
+	}
+
+	req.Address, err = unmarshalAddress(ctx.Query("address"))
+	if err != nil {
+		paramErr(ctx, "address", err)
 		return
 	}
 
@@ -508,6 +620,38 @@ func (c *Controller) GetTransactions(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, ret)
 }
 
+// GetTrace godoc
+//
+//	@Summary		transactions data
+//	@Description	Returns transactions, states and messages
+//	@Tags			transaction
+//	@Accept			json
+//	@Produce		json
+//	@Param   		hash				query	string  	false	"search by tx hash"
+//	@Success		200		{object}	filter.TransactionsRes
+//	@Router			/transactions [get]
+func (c *Controller) GetTrace(ctx *gin.Context) {
+	var req filter.TraceReq
+
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "tx_filter", err)
+		return
+	}
+
+	req.Hash, err = unmarshalBytes(ctx.Query("hash"))
+	if err != nil {
+		paramErr(ctx, "hash", err)
+		return
+	}
+	ret, err := c.svc.FilterTrace(ctx, &req)
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
+	ctx.IndentedJSON(http.StatusOK, ret)
+}
+
 // AggregateTransactionsHistory godoc
 //
 //	@Summary		aggregated transactions grouped by timestamp
@@ -555,6 +699,8 @@ func (c *Controller) AggregateTransactionsHistory(ctx *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param   		hash				query	string  	false	"msg hash"
+//	@Param   		src_workchain     	query  	int32  		false	"filter by source workchain"
+//	@Param   		dst_workchain     	query  	int32  		false	"filter by destination workchain"
 //	@Param   		src_address     	query   []string 	false   "source address"
 //	@Param   		dst_address     	query   []string 	false   "destination address"
 //	@Param   		operation_id     	query   string 		false   "operation id in hex format or as int32"
@@ -675,9 +821,11 @@ func (c *Controller) AggregateMessages(ctx *gin.Context) {
 //	@Param   		metric				query	string  	true	"metric to show"								Enums(message_count, message_amount_sum)
 //	@Param   		src_address     	query   []string 	false   "source address"
 //	@Param   		dst_address     	query   []string 	false   "destination address"
+//	@Param   		src_workchain     	query  	int32  		false	"source workchain"
+//	@Param   		dst_workchain     	query  	int32  		false	"destination workchain"
 //	@Param   		src_contract		query	[]string  	false	"source contract interface"
 //	@Param   		dst_contract		query	[]string  	false	"destination contract interface"
-//	@Param   		operation_name		query	[]string  	false	"filter by contract operation names"
+//	@Param   		operation_name		query	[]string  	false	"contract operation names"
 //	@Param   		minter_address		query	string  	false	"filter FT or NFT operations by minter address"
 //	@Param   		from				query	string  	false	"from timestamp"
 //	@Param   		to					query	string  	false	"to timestamp"

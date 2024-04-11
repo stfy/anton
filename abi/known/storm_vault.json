@@ -1,0 +1,442 @@
+[
+  {
+    "interface_name": "vault",
+    "definitions": {
+      "buffer_params": [
+        {
+          "name": "buffer_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "buffer_under_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "buffer_over_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        }
+      ],
+      "vault_data": [
+        {
+          "name": "jetton_addr",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "rate",
+          "tlb_type": "## 64"
+        },
+        {
+          "name": "total_supply",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "free_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "locked_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "withdraw_locked_balance",
+          "tlb_type": "## 64"
+        },
+        {
+          "name": "stakers_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "executors_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "amm_code",
+          "tlb_type": "^",
+          "format": "cell"
+        }
+      ],
+      "notification_payload": [
+        {
+          "name": "opcode",
+          "tlb_type": ".",
+          "format": "opcode"
+        }
+      ],
+      "referral_data": [
+        {
+          "name": "amount",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "index",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        }
+      ],
+      "executor_data": [
+        {
+          "name": "split_executor_rewards",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "amount",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "index",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        }
+      ]
+    },
+    "in_messages": [
+      {
+        "op_name": "vault::exchange",
+        "op_code": "0x3475fdd2",
+        "body": [
+          {
+            "name": "amm_index",
+            "tlb_type": "## 16",
+            "format": "uint16"
+          },
+          {
+            "name": "free_amount",
+            "tlb_type": "## 64",
+            "format": "int64"
+          },
+          {
+            "name": "locked_amount",
+            "tlb_type": "## 64",
+            "format": "int64"
+          },
+          {
+            "name": "exchange_amount",
+            "tlb_type": "## 64",
+            "format": "int64"
+          },
+          {
+            "name": "withdraw_locked_amount",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "fee_to_stakers",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "withdraw_amount",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "trader_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "referral_params",
+            "tlb_type": "maybe ^",
+            "format": "referral_data",
+            "optional": true
+          },
+          {
+            "name": "executor_params",
+            "tlb_type": "maybe ^",
+            "format": "executor_data",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "op_name": "vault::transfer_notification",
+        "op_code": "0x7362d09c",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64",
+            "format": "uint64"
+          },
+          {
+            "name": "amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "sender",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "forward_payload",
+            "tlb_type": "either . ^",
+            "format": "notification_payload"
+          }
+        ]
+      },
+      {
+        "op_name": "vault::stake",
+        "op_code": "0xc89a3ee4",
+        "body": [
+          {
+            "name": "amount",
+            "tlb_type": ".",
+            "format": "coins"
+          }
+        ]
+      },
+      {
+        "op_name": "vault::unstake",
+        "op_code": "0xd5b5e9ad",
+        "body": [
+          {
+            "name": "jetton_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "user_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "op_name": "vault::init",
+        "op_code": "0x29c102d1",
+        "body": [
+          {
+            "name": "jetton_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_executor_collection_address",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_referral_collection_address",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_vault_contract_data",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "jetton_addr",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "rate",
+                "tlb_type": "## 64"
+              },
+              {
+                "name": "total_supply",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "free_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "locked_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "withdraw_locked_balance",
+                "tlb_type": "## 64"
+              },
+              {
+                "name": "stakers_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "executors_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "whitelisted_addresses",
+                "tlb_type": "^",
+                "format": "cell"
+              },
+              {
+                "name": "buffer_params",
+                "tlb_type": "^",
+                "format": "buffer_params",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get_lp_minter_address",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_vault_whitelisted_addresses",
+        "return_values": [
+          {
+            "name": "whitelisted_addrs_dict",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "addresses",
+                "tlb_type": "dict 3",
+                "format": "dict"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get_vault_data",
+        "return_values": [
+          {
+            "name": "jetton_wallet",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "total_supply",
+            "stack_type": "int"
+          },
+          {
+            "name": "free_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "locked_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "stakers_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "executors_balance",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_buffer_data",
+        "optional": true,
+        "return_values": [
+          {
+            "name": "buffer_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_under_rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_over_rate",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_vault_type",
+        "optional": true,
+        "return_values": [
+          {
+            "name": "vault_type",
+            "stack_type": "int"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "vault_liquidity_provider",
+    "get_methods": [
+      {
+        "name": "get_lp_minter_address",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_wallet_data",
+        "return_values": [
+          {
+            "name": "balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "owner_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "jetton_master_address",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "jetton_wallet_code",
+            "stack_type": "cell"
+          }
+        ]
+      }
+    ]
+  }
+]
