@@ -431,15 +431,6 @@
                 ]
             },
             {
-                "name": "get_amm_balance",
-                "return_values": [
-                    {
-                        "name": "balance",
-                        "stack_type": "int"
-                    }
-                ]
-            },
-            {
                 "name": "get_amm_status",
                 "return_values": [
                     {
