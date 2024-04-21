@@ -2,7 +2,7 @@
     {
         "interface_name": "amm_v2r3",
         "definitions": {
-            "amm_settings": [
+            "amm_settings_v2": [
                 {
                     "name": "fee",
                     "tlb_type": "## 32",
@@ -90,33 +90,33 @@
                 },
                 {
                     "name": "executors_whitelist",
-                    "tlb_type": "^",
-                    "format": "cell"
+                    "tlb_type": "dict 256",
+                    "format": "dict"
                 },
                 {
                     "name": "lowFundingFnA",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
+                    "tlb_type": "## 64",
+                    "format": "uint64"
                 },
                 {
                     "name": "lowFundingFnB",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
+                    "tlb_type": "## 64",
+                    "format": "uint64"
                 },
                 {
                     "name": "highFundingFnA",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
+                    "tlb_type": "## 64",
+                    "format": "int64"
                 },
                 {
                     "name": "highFundingFnB",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
+                    "tlb_type": "## 64",
+                    "format": "uint64"
                 },
                 {
                     "name": "inflectionPoint",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
+                    "tlb_type": "## 64",
+                    "format": "uint64"
                 }
             ]
         },
@@ -133,7 +133,7 @@
                     {
                         "name": "settings",
                         "tlb_type": "^",
-                        "format": "amm_settings"
+                        "format": "amm_settings_v2"
                     }
                 ]
             },
@@ -396,8 +396,33 @@
                                     },
                                     {
                                         "name": "executors_whitelist",
-                                        "tlb_type": "^",
-                                        "format": "cell"
+                                        "tlb_type": "dict 256",
+                                        "format": "dict"
+                                    },
+                                    {
+                                        "name": "lowFundingFnA",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
+                                    },
+                                    {
+                                        "name": "lowFundingFnB",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
+                                    },
+                                    {
+                                        "name": "highFundingFnA",
+                                        "tlb_type": "## 64",
+                                        "format": "int64"
+                                    },
+                                    {
+                                        "name": "highFundingFnB",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
+                                    },
+                                    {
+                                        "name": "inflectionPoint",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
                                     }
                                 ]
                             }
@@ -675,125 +700,6 @@
     },
     {
         "interface_name": "amm_cm_v1r2",
-        "definitions": {
-            "amm_settings": [
-                {
-                    "name": "fee",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "rollover_fee",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "funding_period",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "init_margin_ratio",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "maintenance_margin_ratio",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "liquidation_fee_ratio",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "partial_liquidation_ratio",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "spread_limit",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "max_price_impact",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "max_price_spread",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "max_open_notional",
-                    "tlb_type": ".",
-                    "format": "coins"
-                },
-                {
-                    "name": "fee_to_stakers_percent",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "funding_mode",
-                    "tlb_type": "## 2",
-                    "format": "uint8"
-                },
-                {
-                    "name": "min_partial_liquidation_notional",
-                    "tlb_type": ".",
-                    "format": "coins"
-                },
-                {
-                    "name": "minInitMarginRatio",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "direct_increase_enabled",
-                    "tlb_type": "bool",
-                    "format": "bool"
-                },
-                {
-                    "name": "direct_close_enabled",
-                    "tlb_type": "bool",
-                    "format": "bool"
-                },
-                {
-                    "name": "executors_whitelist",
-                    "tlb_type": "^",
-                    "format": "cell"
-                },
-                {
-                    "name": "lowFundingFnA",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "lowFundingFnB",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "highFundingFnA",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "highFundingFnB",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                },
-                {
-                    "name": "inflectionPoint",
-                    "tlb_type": "## 32",
-                    "format": "uint32"
-                }
-            ]
-        },
         "in_messages": [
             {
                 "op_name": "amm::changeSettings",
@@ -807,7 +713,7 @@
                     {
                         "name": "settings",
                         "tlb_type": "^",
-                        "format": "amm_settings"
+                        "format": "amm_settings_v2"
                     }
                 ]
             },
@@ -1052,6 +958,46 @@
                                         "name": "min_leverage",
                                         "tlb_type": "## 32",
                                         "format": "uint32"
+                                    },
+                                    {
+                                        "name": "direct_increase_enabled",
+                                        "tlb_type": "bool",
+                                        "format": "bool"
+                                    },
+                                    {
+                                        "name": "direct_close_enabled",
+                                        "tlb_type": "bool",
+                                        "format": "bool"
+                                    },
+                                    {
+                                        "name": "executors_whitelist",
+                                        "tlb_type": "dict 256",
+                                        "format": "dict"
+                                    },
+                                    {
+                                        "name": "lowFundingFnA",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
+                                    },
+                                    {
+                                        "name": "lowFundingFnB",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
+                                    },
+                                    {
+                                        "name": "highFundingFnA",
+                                        "tlb_type": "## 64",
+                                        "format": "int64"
+                                    },
+                                    {
+                                        "name": "highFundingFnB",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
+                                    },
+                                    {
+                                        "name": "inflectionPoint",
+                                        "tlb_type": "## 64",
+                                        "format": "uint64"
                                     }
                                 ]
                             }
