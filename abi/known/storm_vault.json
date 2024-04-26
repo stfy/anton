@@ -400,43 +400,5 @@
         ]
       }
     ]
-  },
-  {
-    "interface_name": "vault_liquidity_provider",
-    "get_methods": [
-      {
-        "name": "get_lp_minter_address",
-        "return_values": [
-          {
-            "name": "data",
-            "stack_type": "slice",
-            "format": "addr"
-          }
-        ]
-      },
-      {
-        "name": "get_wallet_data",
-        "return_values": [
-          {
-            "name": "balance",
-            "stack_type": "int"
-          },
-          {
-            "name": "owner_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "jetton_master_address",
-            "stack_type": "slice",
-            "format": "addr"
-          },
-          {
-            "name": "jetton_wallet_code",
-            "stack_type": "cell"
-          }
-        ]
-      }
-    ]
   }
 ]
