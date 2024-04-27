@@ -1233,6 +1233,12 @@
             "format": "coins"
           },
           {
+            "name": "settlement_oracle_price",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
             "name": "position",
             "tlb_type": "^",
             "format": "position_change"
@@ -1280,6 +1286,12 @@
             "format": "coins"
           },
           {
+            "name": "settlement_oracle_price",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
             "name": "position",
             "tlb_type": "^",
             "format": "position_change"
@@ -1319,6 +1331,12 @@
             "name": "index_price",
             "tlb_type": ".",
             "format": "coins"
+          },
+          {
+            "name": "settlement_oracle_price",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
           },
           {
             "name": "position",
