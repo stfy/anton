@@ -105,8 +105,6 @@ type LatestAccountState struct {
 
 func SkipAddress(a addr.Address) bool {
 	switch a.Base64() {
-	case "EQCnBscEi-KGfqJ5Wk6R83yrqtmUum94SXnSDz3AOQfHGjDw":
-		return true
 	case "EQCaaHxc7o-pMaaGoj8g25EaZHHZIYjkbYgfxRLD3v4vqqIr": // eche odno ebanoe nft
 		return true
 	case "EQDxC-4X-68FBRGm3C9Jxf2wpbCY3HfL40dAgVcjqLIiGKjk": // ebanoe nft
@@ -130,6 +128,9 @@ func SkipAddress(a addr.Address) bool {
 		"EQDhIloDu1FWY9WFAgQDgw0RjuT5bLkf15Rmd5LCG3-0hyoe": // strange heavy testnet address
 		return true
 	case "EQAWBIxrfQDExJSfFmE5UL1r9drse0dQx_eaV8w9S77VK32F": // tongo emulator segmentation fault
+		return true
+	case "EQCnBscEi-KGfqJ5Wk6R83yrqtmUum94SXnSDz3AOQfHGjDw",
+		"EQA9xJgsYbsTjWxEcaxv8DLW3iRJtHzjwFzFAEWVxup0WH0R": // quackquack (?)
 		return true
 	default:
 		return false
