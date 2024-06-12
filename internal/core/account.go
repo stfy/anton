@@ -132,7 +132,8 @@ func SkipAddress(a addr.Address) bool {
 	case "EQCnBscEi-KGfqJ5Wk6R83yrqtmUum94SXnSDz3AOQfHGjDw",
 		"EQA9xJgsYbsTjWxEcaxv8DLW3iRJtHzjwFzFAEWVxup0WH0R": // quackquack (?)
 		return true
-	case "EQBP-IbtXCvR4-u3CvytRbG7OFtW0KBVOrlC_ivOkr1efvzu": // NOT sender
+	case "EQBP-IbtXCvR4-u3CvytRbG7OFtW0KBVOrlC_ivOkr1efvzu",
+		"EQCQW9JDf-W0mON_yjPLAbpdKvK49MM6RZEk8it45XO45ECC": // NOT sender
 		return true
 	default:
 		return false
