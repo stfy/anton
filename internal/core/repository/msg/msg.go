@@ -171,7 +171,7 @@ func (r *Repository) AddMessages(ctx context.Context, tx bun.Tx, messages []*cor
 		return nil
 	}
 
-	_, err := tx.NewInsert().Model(messages).
+	_, err := tx.NewInsert().Model(&messages).
 		On("CONFLICT (hash) DO UPDATE").
 		Set("dst_tx_lt = ?dst_tx_lt").
 		Set("dst_workchain = ?dst_workchain").
