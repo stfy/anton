@@ -192,6 +192,8 @@ func (s *Service) uniqMessages(transactions []*core.Transaction) []*core.Message
 var lastLog = time.Now()
 
 func (s *Service) saveBlock(master *core.Block) {
+	defer app.TimeTrack(time.Now(), "saveBlock(%d)", master.SeqNo)
+
 	newBlocks := append([]*core.Block{master}, master.Shards...)
 
 	var newTransactions []*core.Transaction
