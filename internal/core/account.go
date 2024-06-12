@@ -135,6 +135,8 @@ func SkipAddress(a addr.Address) bool {
 	case "EQBP-IbtXCvR4-u3CvytRbG7OFtW0KBVOrlC_ivOkr1efvzu",
 		"EQCQW9JDf-W0mON_yjPLAbpdKvK49MM6RZEk8it45XO45ECC": // NOT sender
 		return true
+	case "EQB3ncyBUTjZUA5EnFKR5_EnOMI9V1tTEAAPaiU71gc4TiUt": // stonfi router
+		return true
 	default:
 		return false
 	}
