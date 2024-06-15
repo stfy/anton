@@ -64,6 +64,7 @@ func (s *Service) insertData(
 
 	if err := func() error {
 		defer app.TimeTrack(time.Now(), "AddMessages(%d)", len(msg))
+		sort.Slice(msg, func(i, j int) bool { return msg[i].CreatedLT < msg[j].CreatedLT })
 		return s.msgRepo.AddMessages(ctx, dbTx, msg)
 	}(); err != nil {
 		return errors.Wrap(err, "add messages")
