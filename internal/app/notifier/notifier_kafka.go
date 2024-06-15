@@ -48,24 +48,24 @@ func (n *Kafka) NotifyAccounts(ctx context.Context, accs []*core.AccountState) e
 }
 
 func (n *Kafka) NotifyMessages(ctx context.Context, msgs []*core.Message) error {
+	records := make([]*kgo.Record, 0)
+
 	for _, msg := range msgs {
 		msgValue, err := json.Marshal(msg)
-
 		if err != nil {
 			return err
 		}
 
-		p := n.Client.ProduceSync(
-			ctx,
-			&kgo.Record{
-				Value: msgValue,
-				Topic: "MESSAGE",
-			},
-		)
+		records = append(records, &kgo.Record{
+			Value: msgValue,
+			Topic: "MESSAGE",
+		})
+	}
 
-		if err = p.FirstErr(); err != nil {
-			return err
-		}
+	p := n.Client.ProduceSync(ctx, records...)
+
+	if err := p.FirstErr(); err != nil {
+		return err
 	}
 
 	return nil
