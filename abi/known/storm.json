@@ -1,0 +1,2115 @@
+[
+  {
+    "interface_name": "storm_vamm",
+    "definitions": {
+      "storm_vamm_settings_v2": [
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "rollover_fee",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "funding_period",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "init_margin_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "maintenance_margin_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "liquidation_fee_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "partial_liquidation_ratio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "spread_limit",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "max_price_impact",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "max_price_spread",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "max_open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "fee_to_stakers_percent",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "funding_mode",
+          "tlb_type": "## 2",
+          "format": "uint8"
+        },
+        {
+          "name": "min_partial_liquidation_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "minInitMarginRatio",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        },
+        {
+          "name": "direct_increase_enabled",
+          "tlb_type": "bool",
+          "format": "bool"
+        },
+        {
+          "name": "direct_close_enabled",
+          "tlb_type": "bool",
+          "format": "bool"
+        },
+        {
+          "name": "executors_whitelist",
+          "tlb_type": "dict 256",
+          "format": "dict"
+        },
+        {
+          "name": "lowFundingFnA",
+          "tlb_type": "## 64",
+          "format": "uint64"
+        },
+        {
+          "name": "lowFundingFnB",
+          "tlb_type": "## 64",
+          "format": "uint64"
+        },
+        {
+          "name": "highFundingFnA",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "highFundingFnB",
+          "tlb_type": "## 64",
+          "format": "uint64"
+        },
+        {
+          "name": "inflectionPoint",
+          "tlb_type": "## 64",
+          "format": "uint64"
+        }
+      ]
+    },
+    "in_messages": [
+      {
+        "op_name": "storm_vamm_changeSettings",
+        "op_code": "0xedcd36a6",
+        "body": [
+          {
+            "name": "redirect_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "settings",
+            "tlb_type": "^",
+            "format": "amm_settings_v2"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vamm_payFunding",
+        "op_code": "0xb652c441",
+        "body": [
+          {
+            "name": "oracle_ref",
+            "tlb_type": "^",
+            "format": "cell"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vamm_initialize",
+        "op_code": "0x29c102d1",
+        "body": [
+          {
+            "name": "redirect_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "code",
+            "tlb_type": "^",
+            "format": "cell"
+          },
+          {
+            "name": "data",
+            "tlb_type": "^",
+            "format": "cell"
+          }
+        ]
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_amm_contract_data",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "vault_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "asset_id",
+                "tlb_type": "## 16",
+                "format": "uint16"
+              },
+              {
+                "name": "close_only",
+                "tlb_type": "bool",
+                "format": "bool"
+              },
+              {
+                "name": "paused",
+                "tlb_type": "bool",
+                "format": "bool"
+              },
+              {
+                "name": "oracle_last_price",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "oracle_last_spread",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "oracle_last_timestamp",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "oracle_max_deviation",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "oracle_validity_period",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "oracle_public_keys_count",
+                "tlb_type": "## 4",
+                "format": "uint32"
+              },
+              {
+                "name": "amm_state",
+                "tlb_type": "^",
+                "format": "struct",
+                "struct_fields": [
+                  {
+                    "name": "quote_asset_reserve",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "base_asset_reserve",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "quote_asset_weight",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "total_long_position_size",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "total_short_position_size",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "open_interest_long",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "open_interest_short",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "latest_long_cumulative_premium_fraction",
+                    "tlb_type": "## 64",
+                    "format": "int64"
+                  },
+                  {
+                    "name": "latest_short_cumulative_premium_fraction",
+                    "tlb_type": "## 64",
+                    "format": "int64"
+                  },
+                  {
+                    "name": "next_funding_block_timestamp",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  }
+                ]
+              },
+              {
+                "name": "settings",
+                "tlb_type": "^",
+                "format": "struct",
+                "struct_fields": [
+                  {
+                    "name": "fee",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "rollover_fee",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "funding_period",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "init_margin_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "maintenance_margin_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "liquidation_fee_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "partial_liquidation_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "spread_limit",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "max_price_impact",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "max_price_spread",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "max_open_notional",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "fee_to_stakers_percent",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "funding_mode",
+                    "tlb_type": "## 2",
+                    "format": "uint8"
+                  },
+                  {
+                    "name": "min_partial_liquidation_notional",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "minInitMarginRatio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "direct_increase_enabled",
+                    "tlb_type": "bool",
+                    "format": "bool"
+                  },
+                  {
+                    "name": "direct_close_enabled",
+                    "tlb_type": "bool",
+                    "format": "bool"
+                  },
+                  {
+                    "name": "executors_whitelist",
+                    "tlb_type": "dict 256",
+                    "format": "dict"
+                  },
+                  {
+                    "name": "lowFundingFnA",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "lowFundingFnB",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "highFundingFnA",
+                    "tlb_type": "## 64",
+                    "format": "int64"
+                  },
+                  {
+                    "name": "highFundingFnB",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "inflectionPoint",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get_amm_status",
+        "return_values": [
+          {
+            "name": "close_only",
+            "stack_type": "int"
+          },
+          {
+            "name": "paused",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_exchange_settings",
+        "return_values": [
+          {
+            "name": "fee",
+            "stack_type": "int"
+          },
+          {
+            "name": "rolloverFee",
+            "stack_type": "int"
+          },
+          {
+            "name": "fundingPeriod",
+            "stack_type": "int"
+          },
+          {
+            "name": "initMarginRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "maintenanceMarginRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "liquidationFeeRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "partialLiquidationRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "spreadLimit",
+            "stack_type": "int"
+          },
+          {
+            "name": "maxPriceImpact",
+            "stack_type": "int"
+          },
+          {
+            "name": "maxPriceSpread",
+            "stack_type": "int"
+          },
+          {
+            "name": "maxOpenNotional",
+            "stack_type": "int"
+          },
+          {
+            "name": "feeToStakersPercent",
+            "stack_type": "int"
+          },
+          {
+            "name": "fundingMode",
+            "stack_type": "int"
+          },
+          {
+            "name": "minPartialLiquidationNotional",
+            "stack_type": "int"
+          },
+          {
+            "name": "minInitMarginRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "executor_fee",
+            "stack_type": "int"
+          },
+          {
+            "name": "close_position_time_delta",
+            "stack_type": "int"
+          },
+          {
+            "name": "max_unrealized_pnl",
+            "stack_type": "int"
+          },
+          {
+            "name": "direct_increase_enabled",
+            "stack_type": "int"
+          },
+          {
+            "name": "direct_close_enabled",
+            "stack_type": "int"
+          },
+          {
+            "name": "executors_whitelist",
+            "stack_type": "cell"
+          },
+          {
+            "name": "lowFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "lowFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "inflectionPoint",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_spot_price",
+        "return_values": [
+          {
+            "name": "spot_price",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_terminal_amm_price",
+        "return_values": [
+          {
+            "name": "terminal_price",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_oracle_data",
+        "return_values": [
+          {
+            "name": "oracle_last_price",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_last_spread",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_last_timestamp",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_max_deviation",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_validity_period",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_public_keys_count",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_public_keys_ref",
+            "stack_type": "cell"
+          }
+        ]
+      },
+      {
+        "name": "get_funding_settings",
+        "return_values": [
+          {
+            "name": "lowFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "lowFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "inflectionPoint",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_amm_name",
+        "return_values": [
+          {
+            "name": "vault_addr",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "asset_id",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_amm_state",
+        "return_values": [
+          {
+            "name": "quote_asset_reserve",
+            "stack_type": "int"
+          },
+          {
+            "name": "base_asset_reserve",
+            "stack_type": "int"
+          },
+          {
+            "name": "quote_asset_weight",
+            "stack_type": "int"
+          },
+          {
+            "name": "total_long_position_size",
+            "stack_type": "int"
+          },
+          {
+            "name": "total_short_position_size",
+            "stack_type": "int"
+          },
+          {
+            "name": "open_interest_long",
+            "stack_type": "int"
+          },
+          {
+            "name": "open_interest_short",
+            "stack_type": "int"
+          },
+          {
+            "name": "latest_long_cumulative_premium_fraction",
+            "stack_type": "int"
+          },
+          {
+            "name": "latest_short_cumulative_premium_fraction",
+            "stack_type": "int"
+          },
+          {
+            "name": "next_funding_block_timestamp",
+            "stack_type": "int"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "storm_coinmvamm_v1r2",
+    "in_messages": [
+      {
+        "op_name": "storm_vamm_changeSettings",
+        "op_code": "0xedcd36a6",
+        "body": [
+          {
+            "name": "redirect_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "settings",
+            "tlb_type": "^",
+            "format": "amm_settings_v2"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vamm_payFunding",
+        "op_code": "0xb652c441",
+        "body": [
+          {
+            "name": "oracle_ref",
+            "tlb_type": "^",
+            "format": "cell"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vamm_initialize",
+        "op_code": "0x29c102d1",
+        "body": [
+          {
+            "name": "redirect_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "code",
+            "tlb_type": "^",
+            "format": "cell"
+          },
+          {
+            "name": "data",
+            "tlb_type": "^",
+            "format": "cell"
+          }
+        ]
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_amm_contract_data",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "vault_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "asset_id",
+                "tlb_type": "## 16",
+                "format": "uint16"
+              },
+              {
+                "name": "close_only",
+                "tlb_type": "bool",
+                "format": "bool"
+              },
+              {
+                "name": "paused",
+                "tlb_type": "bool",
+                "format": "bool"
+              },
+              {
+                "name": "oracle_last_price",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "oracle_last_spread",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "oracle_last_timestamp",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "oracle_max_deviation",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "oracle_validity_period",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "oracle_public_keys_count",
+                "tlb_type": "## 4",
+                "format": "uint32"
+              },
+              {
+                "name": "amm_state",
+                "tlb_type": "^",
+                "format": "struct",
+                "struct_fields": [
+                  {
+                    "name": "quote_asset_reserve",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "base_asset_reserve",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "quote_asset_weight",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "total_long_position_size",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "total_short_position_size",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "open_interest_long",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "open_interest_short",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "latest_long_cumulative_premium_fraction",
+                    "tlb_type": "## 64",
+                    "format": "int64"
+                  },
+                  {
+                    "name": "latest_short_cumulative_premium_fraction",
+                    "tlb_type": "## 64",
+                    "format": "int64"
+                  },
+                  {
+                    "name": "next_funding_block_timestamp",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  }
+                ]
+              },
+              {
+                "name": "settings",
+                "tlb_type": "^",
+                "format": "struct",
+                "struct_fields": [
+                  {
+                    "name": "fee",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "rollover_fee",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "funding_period",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "init_margin_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "maintenance_margin_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "liquidation_fee_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "partial_liquidation_ratio",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "spread_limit",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "max_price_impact",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "max_price_spread",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "max_open_notional",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "fee_to_stakers_percent",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "funding_mode",
+                    "tlb_type": "## 2",
+                    "format": "uint8"
+                  },
+                  {
+                    "name": "min_partial_liquidation_notional",
+                    "tlb_type": ".",
+                    "format": "coins"
+                  },
+                  {
+                    "name": "min_leverage",
+                    "tlb_type": "## 32",
+                    "format": "uint32"
+                  },
+                  {
+                    "name": "direct_increase_enabled",
+                    "tlb_type": "bool",
+                    "format": "bool"
+                  },
+                  {
+                    "name": "direct_close_enabled",
+                    "tlb_type": "bool",
+                    "format": "bool"
+                  },
+                  {
+                    "name": "executors_whitelist",
+                    "tlb_type": "dict 256",
+                    "format": "dict"
+                  },
+                  {
+                    "name": "lowFundingFnA",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "lowFundingFnB",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "highFundingFnA",
+                    "tlb_type": "## 64",
+                    "format": "int64"
+                  },
+                  {
+                    "name": "highFundingFnB",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  },
+                  {
+                    "name": "inflectionPoint",
+                    "tlb_type": "## 64",
+                    "format": "uint64"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get_amm_status",
+        "return_values": [
+          {
+            "name": "close_only",
+            "stack_type": "int"
+          },
+          {
+            "name": "paused",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_exchange_settings",
+        "return_values": [
+          {
+            "name": "fee",
+            "stack_type": "int"
+          },
+          {
+            "name": "rolloverFee",
+            "stack_type": "int"
+          },
+          {
+            "name": "fundingPeriod",
+            "stack_type": "int"
+          },
+          {
+            "name": "initMarginRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "maintenanceMarginRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "liquidationFeeRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "partialLiquidationRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "spreadLimit",
+            "stack_type": "int"
+          },
+          {
+            "name": "maxPriceImpact",
+            "stack_type": "int"
+          },
+          {
+            "name": "maxPriceSpread",
+            "stack_type": "int"
+          },
+          {
+            "name": "maxOpenNotional",
+            "stack_type": "int"
+          },
+          {
+            "name": "feeToStakersPercent",
+            "stack_type": "int"
+          },
+          {
+            "name": "fundingMode",
+            "stack_type": "int"
+          },
+          {
+            "name": "minPartialLiquidationNotional",
+            "stack_type": "int"
+          },
+          {
+            "name": "minInitMarginRatio",
+            "stack_type": "int"
+          },
+          {
+            "name": "executor_fee",
+            "stack_type": "int"
+          },
+          {
+            "name": "close_position_time_delta",
+            "stack_type": "int"
+          },
+          {
+            "name": "max_unrealized_pnl",
+            "stack_type": "int"
+          },
+          {
+            "name": "direct_increase_enabled",
+            "stack_type": "int"
+          },
+          {
+            "name": "direct_close_enabled",
+            "stack_type": "int"
+          },
+          {
+            "name": "executors_whitelist",
+            "stack_type": "cell"
+          },
+          {
+            "name": "lowFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "lowFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "inflectionPoint",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_spot_price",
+        "return_values": [
+          {
+            "name": "spot_price",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_terminal_amm_price",
+        "return_values": [
+          {
+            "name": "terminal_price",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_oracle_data",
+        "return_values": [
+          {
+            "name": "oracle_last_price",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_last_spread",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_last_timestamp",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_max_deviation",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_validity_period",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_public_keys_count",
+            "stack_type": "int"
+          },
+          {
+            "name": "oracle_public_keys_ref",
+            "stack_type": "cell"
+          }
+        ]
+      },
+      {
+        "name": "get_funding_settings",
+        "return_values": [
+          {
+            "name": "lowFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "lowFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnA",
+            "stack_type": "int"
+          },
+          {
+            "name": "highFundingFnB",
+            "stack_type": "int"
+          },
+          {
+            "name": "inflectionPoint",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_amm_name",
+        "return_values": [
+          {
+            "name": "vault_addr",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "asset_id",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_amm_state",
+        "return_values": [
+          {
+            "name": "quote_asset_reserve",
+            "stack_type": "int"
+          },
+          {
+            "name": "base_asset_reserve",
+            "stack_type": "int"
+          },
+          {
+            "name": "quote_asset_weight",
+            "stack_type": "int"
+          },
+          {
+            "name": "total_long_position_size",
+            "stack_type": "int"
+          },
+          {
+            "name": "total_short_position_size",
+            "stack_type": "int"
+          },
+          {
+            "name": "open_interest_long",
+            "stack_type": "int"
+          },
+          {
+            "name": "open_interest_short",
+            "stack_type": "int"
+          },
+          {
+            "name": "latest_long_cumulative_premium_fraction",
+            "stack_type": "int"
+          },
+          {
+            "name": "latest_short_cumulative_premium_fraction",
+            "stack_type": "int"
+          },
+          {
+            "name": "next_funding_block_timestamp",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_settlement_oracle_data",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "cell",
+            "format": "struct"
+          }
+        ]
+      },
+      {
+        "name": "get_vamm_type",
+        "return_values": [
+          {
+            "name": " vamm_type",
+            "stack_type": "int"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "storm_vault",
+    "definitions": {
+      "storm_vault_buffer_params": [
+        {
+          "name": "buffer_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "buffer_under_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "buffer_over_rate",
+          "tlb_type": ".",
+          "format": "coins"
+        }
+      ],
+      "storm_vault_vault_data": [
+        {
+          "name": "jetton_addr",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "rate",
+          "tlb_type": "## 64"
+        },
+        {
+          "name": "total_supply",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "free_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "locked_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "withdraw_locked_balance",
+          "tlb_type": "## 64"
+        },
+        {
+          "name": "stakers_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "executors_balance",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "amm_code",
+          "tlb_type": "^",
+          "format": "cell"
+        }
+      ],
+      "storm_vault_notification_payload": [
+        {
+          "name": "opcode",
+          "tlb_type": ".",
+          "format": "opcode"
+        }
+      ],
+      "storm_vault_referral_data": [
+        {
+          "name": "amount",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "index",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        }
+      ],
+      "storm_vault_executor_data": [
+        {
+          "name": "split_executor_rewards",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "amount",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "index",
+          "tlb_type": "## 32",
+          "format": "uint32"
+        }
+      ]
+    },
+    "in_messages": [
+      {
+        "op_name": "storm_vault_trade_notification",
+        "op_code": "0x3475fdd2",
+        "body": [
+          {
+            "name": "amm_index",
+            "tlb_type": "## 16",
+            "format": "uint16"
+          },
+          {
+            "name": "free_amount",
+            "tlb_type": "## 64",
+            "format": "int64"
+          },
+          {
+            "name": "locked_amount",
+            "tlb_type": "## 64",
+            "format": "int64"
+          },
+          {
+            "name": "exchange_amount",
+            "tlb_type": "## 64",
+            "format": "int64"
+          },
+          {
+            "name": "withdraw_locked_amount",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "fee_to_stakers",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "withdraw_amount",
+            "tlb_type": "## 64"
+          },
+          {
+            "name": "trader_addr",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "referral_params",
+            "tlb_type": "maybe ^",
+            "format": "referral_data",
+            "optional": true
+          },
+          {
+            "name": "executor_params",
+            "tlb_type": "maybe ^",
+            "format": "executor_data",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vault_transfer_notification",
+        "op_code": "0x7362d09c",
+        "body": [
+          {
+            "name": "query_id",
+            "tlb_type": "## 64",
+            "format": "uint64"
+          },
+          {
+            "name": "amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "sender",
+            "tlb_type": "addr",
+            "format": "addr"
+          },
+          {
+            "name": "forward_payload",
+            "tlb_type": "either . ^",
+            "format": "storm_vault_notification_payload"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vault_stake",
+        "op_code": "0xc89a3ee4",
+        "body": [
+          {
+            "name": "amount",
+            "tlb_type": ".",
+            "format": "coins"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vault_unstake",
+        "op_code": "0xd5b5e9ad",
+        "body": [
+          {
+            "name": "jetton_amount",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "user_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_vault_init",
+        "op_code": "0x29c102d1",
+        "body": [
+          {
+            "name": "jetton_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_executor_collection_address",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_referral_collection_address",
+        "arguments": [],
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_vault_contract_data",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "jetton_addr",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "rate",
+                "tlb_type": "## 64"
+              },
+              {
+                "name": "total_supply",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "free_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "locked_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "withdraw_locked_balance",
+                "tlb_type": "## 64"
+              },
+              {
+                "name": "stakers_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "executors_balance",
+                "tlb_type": ".",
+                "format": "coins"
+              },
+              {
+                "name": "whitelisted_addresses",
+                "tlb_type": "^",
+                "format": "cell"
+              },
+              {
+                "name": "buffer_params",
+                "tlb_type": "^",
+                "format": "storm_vault_buffer_params",
+                "optional": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get_lp_minter_address",
+        "return_values": [
+          {
+            "name": "data",
+            "stack_type": "slice",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "name": "get_vault_whitelisted_addresses",
+        "return_values": [
+          {
+            "name": "whitelisted_addrs_dict",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "addresses",
+                "tlb_type": "dict 3",
+                "format": "dict"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "get_vault_data",
+        "return_values": [
+          {
+            "name": "jetton_wallet",
+            "stack_type": "slice",
+            "format": "addr"
+          },
+          {
+            "name": "rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "total_supply",
+            "stack_type": "int"
+          },
+          {
+            "name": "free_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "locked_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "stakers_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "executors_balance",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_buffer_data",
+        "optional": true,
+        "return_values": [
+          {
+            "name": "buffer_balance",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_under_rate",
+            "stack_type": "int"
+          },
+          {
+            "name": "buffer_over_rate",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_vault_type",
+        "optional": true,
+        "return_values": [
+          {
+            "name": "vault_type",
+            "stack_type": "int"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "interface_name": "storm_position_manager_v2r1",
+    "definitions": {
+      "storm_amm_state_change_notification": [
+        {
+          "name": "quote_asset_reserve",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "quote_asset_reserve_weight",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "base_asset_reserve",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "total_long_position_size",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "total_short_position_size",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_interest_long",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_interest_short",
+          "tlb_type": ".",
+          "format": "coins"
+        }
+      ],
+      "storm_position_change_notification": [
+        {
+          "name": "size",
+          "tlb_type": "## 128",
+          "format": "bigInt"
+        },
+        {
+          "name": "direction",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "margin",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "last_updated_cumulative_premium",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        }
+      ],
+      "storm_referral_data": [
+        {
+          "name": "address",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32"
+        }
+      ],
+      "storm_position_state": [
+        {
+          "name": "size",
+          "tlb_type": "## 128",
+          "format": "bigInt"
+        },
+        {
+          "name": "direction",
+          "tlb_type": "## 1",
+          "format": "uint8"
+        },
+        {
+          "name": "margin",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "open_notional",
+          "tlb_type": ".",
+          "format": "coins"
+        },
+        {
+          "name": "last_updated_cumulative_premium",
+          "tlb_type": "## 64",
+          "format": "int64"
+        },
+        {
+          "name": "fee",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "discount",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "rebate",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "tlb_type": "## 32",
+          "format": "uint64"
+        }
+      ],
+      "storm_position_record": [
+        {
+          "name": "locked",
+          "tlb_type": "bool",
+          "format": "bool"
+        },
+        {
+          "name": "redirect_address",
+          "tlb_type": "addr",
+          "format": "addr"
+        },
+        {
+          "name": "orders_bitset",
+          "tlb_type": "## 8",
+          "format": "uint32"
+        },
+        {
+          "name": "orders",
+          "tlb_type": ".",
+          "format": "orders"
+        },
+        {
+          "name": "position",
+          "tlb_type": "^",
+          "format": "position_state"
+        }
+      ]
+    },
+    "in_messages": [
+      {
+        "op_name": "storm_take_referral_fees",
+        "op_code": "0x12d9601d",
+        "body": [
+          {
+            "name": "referral_fees",
+            "tlb_type": "^",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "discount",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              },
+              {
+                "name": "rebate",
+                "tlb_type": "## 32",
+                "format": "uint32"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "op_name": "storm_cancel_order",
+        "op_code": "0x67134629",
+        "body": [
+          {
+            "name": "order_type",
+            "tlb_type": "## 4",
+            "format": "uint8"
+          },
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "gas_to_address",
+            "tlb_type": "addr",
+            "format": "addr"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_create_order",
+        "op_code": "0xa39843f4",
+        "body": [
+          {
+            "name": "order_payload",
+            "tlb_type": ".",
+            "format": "order"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_complete_order",
+        "op_code": "0xcf90d618",
+        "body": [
+          {
+            "name": "order_type",
+            "tlb_type": "## 4",
+            "format": "uint8"
+          },
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "origin_opcode",
+            "tlb_type": ".",
+            "format": "opcode"
+          },
+          {
+            "name": "index_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "settlement_oracle_price",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
+            "name": "position",
+            "tlb_type": "^",
+            "format": "position_change"
+          },
+          {
+            "name": "amm",
+            "tlb_type": "^",
+            "format": "amm_change"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_activate_order",
+        "op_code": "0x9d2ec640",
+        "body": [
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "activated_order",
+            "tlb_type": "^",
+            "format": "order"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_update_position_state",
+        "op_code": "0x60dfc677",
+        "body": [
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "origin_opcode",
+            "tlb_type": ".",
+            "format": "opcode"
+          },
+          {
+            "name": "index_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "settlement_oracle_price",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
+            "name": "position",
+            "tlb_type": "^",
+            "format": "position_change"
+          },
+          {
+            "name": "amm",
+            "tlb_type": "^",
+            "format": "amm_change"
+          }
+        ]
+      },
+      {
+        "op_name": "storm_update_position_state_with_orders",
+        "op_code": "0x5d1b17b8",
+        "body": [
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          },
+          {
+            "name": "stop_trigger_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "take_trigger_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "origin_opcode",
+            "tlb_type": ".",
+            "format": "opcode"
+          },
+          {
+            "name": "index_price",
+            "tlb_type": ".",
+            "format": "coins"
+          },
+          {
+            "name": "settlement_oracle_price",
+            "tlb_type": ".",
+            "format": "coins",
+            "optional": true
+          },
+          {
+            "name": "position",
+            "tlb_type": "^",
+            "format": "position_change"
+          },
+          {
+            "name": "amm",
+            "tlb_type": "^",
+            "format": "amm_change"
+          }
+        ]
+      }
+    ],
+    "out_messages": [
+      {
+        "op_name": "storm_order_created_notification",
+        "op_code": "0x3a943ce6",
+        "body": []
+      },
+      {
+        "op_name": "storm_order_canceled_notification",
+        "op_code": "0x69d08679",
+        "body": []
+      }
+    ],
+    "get_methods": [
+      {
+        "name": "get_version",
+        "return_values": [
+          {
+            "name": "value",
+            "stack_type": "int"
+          }
+        ]
+      },
+      {
+        "name": "get_position_manager_contract_data",
+        "return_values": [
+          {
+            "name": "info",
+            "stack_type": "cell",
+            "format": "struct",
+            "struct_fields": [
+              {
+                "name": "trader_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "vault_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "amm_address",
+                "tlb_type": "addr",
+                "format": "addr"
+              },
+              {
+                "name": "long",
+                "tlb_type": "maybe ^",
+                "format": "position_record"
+              },
+              {
+                "name": "short",
+                "tlb_type": "maybe ^",
+                "format": "position_record"
+              },
+              {
+                "name": "referral_data",
+                "tlb_type": "maybe ^",
+                "format": "referral_data"
+              },
+              {
+                "name": "orders",
+                "tlb_type": ".",
+                "format": "orders"
+              },
+              {
+                "name": "orders_bitset",
+                "tlb_type": "## 8",
+                "format": "uint32"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
