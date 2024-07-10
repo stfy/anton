@@ -82,6 +82,28 @@
     },
     "in_messages": [
       {
+        "op_name": "amm::set_close_only",
+        "op_code": "0x82ebbd69",
+        "body": []
+      },
+      {
+        "op_name": "amm:unset_close_only",
+        "op_code": "0x7abf2f00",
+        "body": []
+      },
+
+      {
+        "op_name": "amm::pause",
+        "op_code": "0x71c9706c",
+        "body": []
+      },
+
+      {
+        "op_name": "amm::unpause",
+        "op_code": "0x6ce6a725",
+        "body": []
+      },
+      {
         "op_name": "amm::changeSettings",
         "op_code": "0xedcd36a6",
         "body": [
@@ -640,6 +662,28 @@
     },
     "in_messages": [
       {
+        "op_name": "amm::set_close_only",
+        "op_code": "0x82ebbd69",
+        "body": []
+      },
+      {
+        "op_name": "amm:unset_close_only",
+        "op_code": "0x7abf2f00",
+        "body": []
+      },
+
+      {
+        "op_name": "amm::pause",
+        "op_code": "0x71c9706c",
+        "body": []
+      },
+
+      {
+        "op_name": "amm::unpause",
+        "op_code": "0x6ce6a725",
+        "body": []
+      },
+      {
         "op_name": "amm::changeSettings",
         "op_code": "0xedcd36a6",
         "body": [
@@ -1119,6 +1163,28 @@
     "interface_name": "amm_margined",
     "definitions": {
       "amm_settings": [
+        {
+          "op_name": "amm::set_close_only",
+          "op_code": "0x82ebbd69",
+          "body": []
+        },
+        {
+          "op_name": "amm:unset_close_only",
+          "op_code": "0x7abf2f00",
+          "body": []
+        },
+
+        {
+          "op_name": "amm::pause",
+          "op_code": "0x71c9706c",
+          "body": []
+        },
+
+        {
+          "op_name": "amm::unpause",
+          "op_code": "0x6ce6a725",
+          "body": []
+        },
         {
           "name": "fee",
           "tlb_type": "## 32",
