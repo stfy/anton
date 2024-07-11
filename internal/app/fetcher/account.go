@@ -77,6 +77,18 @@ func (s *Service) getAccount(ctx context.Context, b *ton.BlockIDExt, a addr.Addr
 		if err == nil {
 			return MapAccount(b, raw), nil
 		}
+
+		ext, err := s.API.CurrentMasterchainInfo(ctx)
+		if err != nil {
+			return nil, errors.Wrapf(core.ErrNotFound, "cannot find %s account state", a.Base64())
+		}
+
+		// Maybe fix
+		raw, err = s.API.GetAccount(ctx, ext, a.MustToTonutils())
+		if err == nil {
+			return MapAccount(b, raw), nil
+		}
+
 		return nil, errors.Wrapf(core.ErrNotFound, "cannot find %s account state", a.Base64())
 	}
 
