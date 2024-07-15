@@ -83,16 +83,20 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 		latest              []*core.LatestAccountState
 	)
 
-	if f.ForceCache && f.LatestState {
-		// only 1 type allowed
-		return cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes[0])
-	}
+	//if f.ForceCache && f.LatestState {
+	//	// only 1 type allowed
+	//	return cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes[0])
+	//}
 
 	// choose table to filter states by
 	// and optionally join account data
 	if f.LatestState {
 		q = r.pg.NewSelect().Model(&latest).
 			Relation("AccountState", func(q *bun.SelectQuery) *bun.SelectQuery {
+				if len(f.Columns) > 0 {
+					return q.Column(f.Columns...)
+				}
+
 				return q.ExcludeColumn(f.ExcludeColumn...)
 			}).
 			Relation("AccountState.Label")

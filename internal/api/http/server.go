@@ -93,7 +93,12 @@ func (s *Server) RegisterRoutes(t QueryController) {
 	base.GET("/swagger", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, basePath+"/swagger/index.html")
 	})
+}
 
+func (s *Server) RegisterV1Routes(t *StormController) {
+	v1 := s.router.Group(v1Path)
+
+	v1.GET("/storm/position_managers", t.GetPositionManagers)
 }
 
 func (s *Server) Run() error {
