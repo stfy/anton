@@ -32,6 +32,7 @@ type AccountsReq struct {
 	MinterAddress *addr.Address      // `form:"minter_address"`
 
 	ExcludeColumn []string // TODO: support relations
+	Columns       []string // TODO: support relations
 
 	Order string `form:"order"` // ASC, DESC
 
