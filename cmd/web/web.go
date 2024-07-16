@@ -89,7 +89,7 @@ var Command = &cli.Command{
 		srv := http.NewServer(
 			env.GetString("LISTEN", "0.0.0.0:80"),
 		)
-		srv.RegisterRoutes(http.NewController(qs, p, api))
+		srv.RegisterRoutes(http.NewController(qs))
 		srv.RegisterV1Routes(http.NewStormController(qs, p, api))
 
 		c := make(chan os.Signal, 1)
