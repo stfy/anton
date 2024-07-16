@@ -1,0 +1,10 @@
+name: Build & Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  CI_CD:
+    uses: Tsunami-Exchange/github-actions-workflows/.github/workflows/build.yml@main
+    with:
+      DOCKERFILE: ./Dockerfile
