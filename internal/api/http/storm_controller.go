@@ -22,15 +22,6 @@ func NewStormController(svc app.QueryService, parser app.ParserService, api ton.
 	return &StormController{svc: svc, parser: parser, API: api}
 }
 
-// GetPositionManagers godoc
-//
-//	@Summary		statistics on all tables
-//	@Description	Returns statistics on blocks, transactions, messages and accounts
-//	@Tags			statistics
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}		aggregate.Statistics
-//	@Router			/statistics [get]
 func (c *StormController) GetPositionManagers(ctx *gin.Context) {
 	ts := time.Now()
 

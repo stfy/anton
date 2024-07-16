@@ -22,8 +22,6 @@ type QueryController interface {
 	GetLabels(*gin.Context)
 
 	GetAccounts(*gin.Context)
-	GetLatestAccounts(*gin.Context)
-	GetAccountInterface(*gin.Context)
 	AggregateAccounts(*gin.Context)
 	AggregateAccountsHistory(*gin.Context)
 
@@ -64,10 +62,8 @@ func (s *Server) RegisterRoutes(t QueryController) {
 	base.GET("/labels/categories", t.GetLabelCategories)
 
 	base.GET("/accounts", t.GetAccounts)
-	base.GET("/accounts/latest", t.GetLatestAccounts)
 	base.GET("/accounts/aggregated", t.AggregateAccounts)
 	base.GET("/accounts/aggregated/history", t.AggregateAccountsHistory)
-	base.GET("/accounts/interface", t.GetAccountInterface)
 
 	base.GET("/trace", t.GetTrace)
 
@@ -99,6 +95,15 @@ func (s *Server) RegisterV1Routes(t *StormController) {
 	v1 := s.router.Group(v1Path)
 
 	v1.GET("/storm/position_managers", t.GetPositionManagers)
+
+	v1.GET("/swagger/*any", ginSwagger.WrapHandler(
+		swaggerFiles.Handler,
+		ginSwagger.URL(v1Path+"/swagger/doc.json"),
+		ginSwagger.DefaultModelsExpandDepth(-1)))
+
+	v1.GET("/swagger", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, basePath+"/swagger/index.html")
+	})
 }
 
 func (s *Server) Run() error {
