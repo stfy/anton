@@ -30,9 +30,17 @@ func (s *Service) insertData(
 		_ = dbTx.Rollback()
 	}()
 
-	parsedMessages := make([]*core.Message, 0)
+	var (
+		parsedMessages   = make([]*core.Message, 0)
+		externalMessages = make([]*core.Message, 0)
+	)
 
 	for _, message := range msg {
+		// Add external messages to another topic
+		if message.Type == core.ExternalIn {
+			externalMessages = append(externalMessages, message)
+		}
+
 		err := s.Parser.ParseMessagePayload(ctx, message)
 		if errors.Is(err, app.ErrImpossibleParsing) {
 			continue
@@ -86,7 +94,7 @@ func (s *Service) insertData(
 
 	if err := func() error {
 		defer app.TimeTrack(time.Now(), "NotifyMessages(%d)", len(parsedMessages))
-		return s.Notifier.NotifyMessages(ctx, parsedMessages)
+		return s.Notifier.NotifyMessages(ctx, parsedMessages, externalMessages)
 	}(); err != nil {
 		return errors.Wrap(err, "notify messages")
 	}
