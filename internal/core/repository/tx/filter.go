@@ -158,6 +158,36 @@ func (r *Repository) trace(ctx context.Context, req *filter.TraceReq, result []*
 	return nil, result, err
 }
 
+func (r *Repository) traceFromExternalMessage(ctx context.Context, req *filter.TraceReq) (result *core.Transaction, ret []*core.Transaction, err error) {
+	q := r.pg.NewSelect().
+		Model(&ret).
+		Relation("InMsg").
+		Relation("OutMsg")
+
+	q = q.Where("transaction.in_msg_hash = ?", req.ExternalMessageHash)
+
+	if err = q.Scan(ctx); err != nil {
+		return nil, nil, err
+	}
+
+	for _, outTx := range ret {
+		if outTx.OutMsgCount == 0 {
+			continue
+		}
+
+		for _, out := range outTx.OutMsg {
+			_, childTxs, err := r.traceFromExternalMessage(ctx, &filter.TraceReq{ExternalMessageHash: out.Hash})
+			if err != nil {
+				return nil, nil, err
+			}
+
+			ret = append(ret, childTxs...)
+		}
+	}
+
+	return nil, ret, err
+}
+
 func (r *Repository) FilterTrace(ctx context.Context, req *filter.TraceReq) (*filter.TraceRes, error) {
 	var (
 		res = new(filter.TraceRes)
@@ -165,7 +195,12 @@ func (r *Repository) FilterTrace(ctx context.Context, req *filter.TraceReq) (*fi
 		err error
 	)
 
-	res.Root, res.Rows, err = r.trace(ctx, req, txs)
+	if req.ExternalMessageHash != nil {
+		res.Root, res.Rows, err = r.traceFromExternalMessage(ctx, req)
+	} else {
+		res.Root, res.Rows, err = r.trace(ctx, req, txs)
+	}
+
 	if err != nil {
 		return nil, err
 	}

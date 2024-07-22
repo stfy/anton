@@ -563,6 +563,13 @@ func (c *Controller) GetTrace(ctx *gin.Context) {
 		paramErr(ctx, "hash", err)
 		return
 	}
+
+	req.ExternalMessageHash, err = unmarshalBytes(ctx.Query("ext_msg_hash"))
+	if err != nil {
+		paramErr(ctx, "hash", err)
+		return
+	}
+
 	ret, err := c.svc.FilterTrace(ctx, &req)
 	if err != nil {
 		internalErr(ctx, err)
