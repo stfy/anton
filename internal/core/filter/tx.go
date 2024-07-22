@@ -31,7 +31,8 @@ type TransactionsReq struct {
 }
 
 type TraceReq struct {
-	Hash []byte // `form:"hash"`
+	Hash                []byte // `form:"hash"`
+	ExternalMessageHash []byte // `form:"ext_msg_hash"`
 }
 
 type TransactionsRes struct {
