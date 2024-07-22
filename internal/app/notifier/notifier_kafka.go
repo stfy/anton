@@ -98,7 +98,9 @@ func MessageToCell(message tlb.AnyMessage) ([]byte, []byte, error) {
 
 	msg := struct {
 		RawData string `json:"rawData,omitempty"`
-	}{}
+	}{
+		RawData: hex.EncodeToString(c.ToBOC()),
+	}
 
 	msgValue, err := json.Marshal(msg)
 	if err != nil {
