@@ -1,8 +1,10 @@
 package tx
 
 import (
+	"bytes"
 	"context"
 	"github.com/tonindexer/anton/addr"
+	"slices"
 	"strings"
 
 	"github.com/uptrace/bun"
@@ -207,5 +209,26 @@ func (r *Repository) FilterTrace(ctx context.Context, req *filter.TraceReq) (*fi
 
 	res.Total = len(res.Rows)
 
+	res.Completed = isCompleted(res.Rows)
+
 	return res, err
+}
+
+func isCompleted(txs []*core.Transaction) bool {
+	return Every(txs, func(transaction *core.Transaction) bool {
+		return Every(transaction.OutMsg, func(message *core.Message) bool {
+			return slices.ContainsFunc(txs, func(transaction *core.Transaction) bool {
+				return bytes.Equal(transaction.InMsgHash, message.Hash)
+			})
+		})
+	})
+}
+
+func Every[T any](ts []T, pred func(T) bool) bool {
+	for _, t := range ts {
+		if !pred(t) {
+			return false
+		}
+	}
+	return true
 }

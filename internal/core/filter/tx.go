@@ -41,9 +41,10 @@ type TransactionsRes struct {
 }
 
 type TraceRes struct {
-	Total int                 `json:"total"`
-	Root  *core.Transaction   `json:"root"`
-	Rows  []*core.Transaction `json:"results"`
+	Total     int                 `json:"total"`
+	Completed bool                `json:"status"`
+	Root      *core.Transaction   `json:"root"`
+	Rows      []*core.Transaction `json:"results"`
 }
 
 type TransactionRepository interface {
