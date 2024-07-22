@@ -34,7 +34,7 @@ func (s *Service) getAccount(ctx context.Context, b *ton.BlockIDExt, a addr.Addr
 	acc = MapAccount(b, raw)
 
 	if raw.Code != nil {
-		libs, err := s.GetAccountLibraries(ctx, raw)
+		libs, err := s.getAccountLibraries(ctx, a, raw)
 
 		if err != nil {
 			return nil, errors.Wrapf(err, "get account libraries")
@@ -46,13 +46,11 @@ func (s *Service) getAccount(ctx context.Context, b *ton.BlockIDExt, a addr.Addr
 
 		if raw.Code.GetType() == cell.LibraryCellType {
 			hash, err := getLibraryHash(raw.Code)
-
 			if err != nil {
 				return nil, errors.Wrap(err, "get library hash")
 			}
 
 			lib := s.libraries.get(hash)
-
 			if lib != nil && lib.Lib != nil {
 				acc.GetMethodHashes, _ = abi.GetMethodHashes(lib.Lib)
 			}

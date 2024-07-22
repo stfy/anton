@@ -124,19 +124,19 @@ func (c *accountCache) set(bExt *ton.BlockIDExt, acc *core.AccountState) {
 }
 
 type librariesCache struct {
-	libs        map[string]*LibDescription
+	libs        map[string]*libDescription
 	lastCleared time.Time
 	sync.Mutex
 }
 
 func newLibrariesCache() *librariesCache {
 	return &librariesCache{
-		libs:        map[string]*LibDescription{},
+		libs:        map[string]*libDescription{},
 		lastCleared: time.Time{},
 	}
 }
 
-func (c *librariesCache) get(hash []byte) *LibDescription {
+func (c *librariesCache) get(hash []byte) *libDescription {
 	c.Lock()
 	defer c.Unlock()
 
@@ -149,7 +149,7 @@ func (c *librariesCache) get(hash []byte) *LibDescription {
 	return nil
 }
 
-func (c *librariesCache) set(hash []byte, desc *LibDescription) {
+func (c *librariesCache) set(hash []byte, desc *libDescription) {
 	c.Lock()
 	defer c.Unlock()
 
