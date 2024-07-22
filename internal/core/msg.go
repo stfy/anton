@@ -26,8 +26,8 @@ type Message struct {
 	ch.CHModel    `ch:"messages,partition:toYYYYMM(created_at)" json:"-"`
 	bun.BaseModel `bun:"table:messages" json:"-"`
 
-	RawMessage tlb.Message `ch:"-" bun:"-"`
-	Type       MessageType `ch:",lc" bun:"type:message_type,notnull" json:"type"` // TODO: ch enum
+	RawMessage *tlb.Message `ch:"-" bun:"-"`
+	Type       MessageType  `ch:",lc" bun:"type:message_type,notnull" json:"type"` // TODO: ch enum
 
 	Hash []byte `ch:",pk" bun:"type:bytea,pk,notnull"  json:"hash"`
 
