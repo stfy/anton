@@ -90,7 +90,7 @@ func NewKafkaNotifier(cfg *KafkaConfig) *Kafka {
 	return &Kafka{KafkaConfig: cfg}
 }
 
-func MessageToCell(message tlb.Message) ([]byte, []byte, error) {
+func MessageToCell(message *tlb.Message) ([]byte, []byte, error) {
 	c, err := tlb.ToCell(message)
 	if err != nil {
 		return nil, nil, err
