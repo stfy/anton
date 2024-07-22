@@ -82,7 +82,7 @@ func mapMessageExternal(msg *core.Message, rawTx *tlb.Transaction, rawMsg tlb.Me
 	switch raw := rawMsg.Msg.(type) {
 	case *tlb.ExternalMessage:
 		msg.Type = core.ExternalIn
-		msg.RawMessage = &rawMsg
+		msg.RawMessage = rawMsg.AsExternalIn()
 
 		msg.DstAddress = *addr.MustFromTonutils(raw.DstAddr)
 		msg.DstWorkchain = int32(msg.DstAddress.Workchain())
