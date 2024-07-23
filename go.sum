@@ -203,6 +203,10 @@ github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 h1:bAn7/zixMGCfxrRT
 github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673/go.mod h1:N3UwUGtsrSj3ccvlPHLoLsHnpR27oXr4ZE984MbSER8=
 github.com/xssnick/tonutils-go v1.8.5-0.20231016063454-6d3e0636946d h1:M9SaxaPlxCeGEAsdu6yyypjB208e2g7mPymts+0JZC4=
 github.com/xssnick/tonutils-go v1.8.5-0.20231016063454-6d3e0636946d/go.mod h1:rqfQ4jsLaFhUUvouz2hTTC02nQGszOhSps7tGAKRC8g=
+github.com/xssnick/tonutils-go v1.9.0 h1:HNFuRWvxANmEuZu9hj3htk44TSylABZsXovWHvCQKBk=
+github.com/xssnick/tonutils-go v1.9.0/go.mod h1:p1l1Bxdv9sz6x2jfbuGQUGJn6g5cqg7xsTp8rBHFoJY=
+github.com/xssnick/tonutils-go v1.9.5 h1:kyjWcSEBQeCyXsIMYhdMWIV5coNQZ/89pCriqBXOayM=
+github.com/xssnick/tonutils-go v1.9.5/go.mod h1:p1l1Bxdv9sz6x2jfbuGQUGJn6g5cqg7xsTp8rBHFoJY=
 github.com/xssnick/tonutils-go v1.9.8 h1:Sq382w8H63sjy5y+j13b9mytHPLf7H94LW+OmxZ4h/c=
 github.com/xssnick/tonutils-go v1.9.8/go.mod h1:p1l1Bxdv9sz6x2jfbuGQUGJn6g5cqg7xsTp8rBHFoJY=
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
