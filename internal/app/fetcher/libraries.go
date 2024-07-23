@@ -77,6 +77,10 @@ func (s *Service) getAccountLibraries(ctx context.Context, a addr.Address, raw *
 	libsMap := cell.NewDict(256)
 
 	for i, hash := range hashes {
+		if libs[i] == nil {
+			continue
+		}
+
 		desc := libDescription{Lib: libs[i]}
 
 		t, err := tlb.ToCell(&desc)
