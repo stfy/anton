@@ -6,6 +6,7 @@ import (
 	"github.com/tmthrgd/go-hex"
 	"github.com/tonindexer/anton/internal/app"
 	"github.com/tonindexer/anton/internal/core"
+	"github.com/tonindexer/anton/lru"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"github.com/xssnick/tonutils-go/tlb"
 )
@@ -18,6 +19,7 @@ type KafkaConfig struct {
 
 type Kafka struct {
 	*KafkaConfig
+	cache *lru.Cache[string, interface{}]
 }
 
 func (n *Kafka) Notify(ctx context.Context, entity any) error {
@@ -58,10 +60,13 @@ func (n *Kafka) NotifyMessages(ctx context.Context, msgs []*core.Message, ext []
 			return err
 		}
 
-		records = append(records, &kgo.Record{
-			Value: msgValue,
-			Topic: "MESSAGE",
-		})
+		_, ok := n.cache.Get(string(msg.Hash))
+		if ok {
+			continue
+		}
+
+		records = append(records, &kgo.Record{Value: msgValue, Topic: "MESSAGE"})
+		n.cache.Put(string(msg.Hash), msg)
 	}
 
 	for _, msg := range ext {
@@ -87,7 +92,7 @@ func (n *Kafka) NotifyMessages(ctx context.Context, msgs []*core.Message, ext []
 }
 
 func NewKafkaNotifier(cfg *KafkaConfig) *Kafka {
-	return &Kafka{KafkaConfig: cfg}
+	return &Kafka{KafkaConfig: cfg, cache: lru.New[string, interface{}](10240)}
 }
 
 func MessageToCell(message tlb.AnyMessage) ([]byte, []byte, error) {
