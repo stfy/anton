@@ -40,6 +40,7 @@ COPY migrations /go/src/github.com/tonindexer/anton/migrations
 COPY cmd /go/src/github.com/tonindexer/anton/cmd
 COPY addr /go/src/github.com/tonindexer/anton/addr
 COPY abi /go/src/github.com/tonindexer/anton/abi
+COPY lru /go/src/github.com/tonindexer/anton/lru
 COPY internal /go/src/github.com/tonindexer/anton/internal
 COPY main.go /go/src/github.com/tonindexer/anton
 
