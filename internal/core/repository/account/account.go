@@ -234,10 +234,10 @@ func (r *Repository) AddAccountStates(ctx context.Context, tx bun.Tx, accounts [
 		}
 	}
 
-	_, err := r.ch.NewInsert().Model(&accounts).Exec(ctx)
-	if err != nil {
-		return err
-	}
+	//_, err := r.ch.NewInsert().Model(&accounts).Exec(ctx)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }
