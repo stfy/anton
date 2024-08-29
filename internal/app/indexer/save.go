@@ -214,25 +214,94 @@ func (s *Service) saveBlock(master *core.Block) {
 	lvl.Uint32("last_inserted_seq", master.SeqNo).Msg("inserted new block")
 }
 
+func (s *Service) saveBlocks(ctx context.Context, masterBlocks []*core.Block) {
+	var (
+		newBlocks       []*core.Block
+		newTransactions []*core.Transaction
+		lastSeqNo       uint32
+	)
+
+	for _, master := range masterBlocks {
+		if master.SeqNo > lastSeqNo {
+			lastSeqNo = master.SeqNo
+		}
+
+		newBlocks = append(newBlocks, master)
+		newBlocks = append(newBlocks, master.Shards...)
+
+		newTransactions = append(newTransactions, master.Transactions...)
+		for i := range master.Shards {
+			newTransactions = append(newTransactions, master.Shards[i].Transactions...)
+		}
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	defer cancel()
+
+	if err := s.insertData(s.uniqAccounts(newTransactions), s.uniqMessages(newTransactions), newTransactions, newBlocks); err != nil {
+		panic(err)
+	}
+
+	lvl := log.Debug()
+	if time.Since(lastLog) > 10*time.Minute {
+		lvl = log.Info()
+		lastLog = time.Now()
+	}
+	lvl.
+		Int("master_blocks_len", len(masterBlocks)).
+		Uint32("last_inserted_seq", lastSeqNo).
+		Msg("inserted new block")
+}
+
 func (s *Service) saveBlocksLoop(results <-chan *core.Block) {
 	t := time.NewTicker(100 * time.Millisecond)
 	defer t.Stop()
 
 	for s.running() {
-		var b *core.Block
+		var blocks []*core.Block
 
-		select {
-		case b = <-results:
-		case <-t.C:
-			continue
+	_loop:
+		for {
+			select {
+			case b := <-results:
+				log.Debug().
+					Uint32("master_seq_no", b.SeqNo).
+					Int("master_tx", len(b.Transactions)).
+					Int("shards", len(b.Shards)).
+					Msg("new master")
+
+				blocks = append(blocks, b)
+
+			case <-t.C:
+				break _loop
+			}
 		}
 
-		log.Debug().
-			Uint32("master_seq_no", b.SeqNo).
-			Int("master_tx", len(b.Transactions)).
-			Int("shards", len(b.Shards)).
-			Msg("new master")
-
-		s.saveBlock(b)
+		if len(blocks) != 0 {
+			s.saveBlocks(context.Background(), blocks)
+		}
 	}
 }
+
+//func (s *Service) saveBlocksLoop(results <-chan *core.Block) {
+//	t := time.NewTicker(100 * time.Millisecond)
+//	defer t.Stop()
+//
+//	for s.running() {
+//		var b *core.Block
+//
+//		select {
+//		case b = <-results:
+//		case <-t.C:
+//			continue
+//		}
+//
+//		log.Debug().
+//			Uint32("master_seq_no", b.SeqNo).
+//			Int("master_tx", len(b.Transactions)).
+//			Int("shards", len(b.Shards)).
+//			Msg("new master")
+//
+//		s.saveBlock(b)
+//	}
+//}
