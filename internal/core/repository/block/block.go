@@ -84,6 +84,16 @@ func (r *Repository) AddBlocks(ctx context.Context, tx bun.Tx, info []*core.Bloc
 	return nil
 }
 
+func (r *Repository) CountMasterBlocks(ctx context.Context) (int, error) {
+	ret, err := r.ch.NewSelect().Model((*core.Block)(nil)).
+		Where("workchain = -1").
+		Count(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return ret, nil
+}
+
 func (r *Repository) GetLastMasterBlock(ctx context.Context) (*core.Block, error) {
 	ret := new(core.Block)
 
