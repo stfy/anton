@@ -148,6 +148,8 @@ func (s *Service) addMessage(msg *core.Message, uniqMsg map[string]*core.Message
 }
 
 func (s *Service) uniqMessages(transactions []*core.Transaction) []*core.Message {
+	defer app.TimeTrack(time.Now(), "uniqMessages")
+
 	var ret []*core.Message
 
 	uniqMsg := make(map[string]*core.Message)
