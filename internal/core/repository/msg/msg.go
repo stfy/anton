@@ -190,6 +190,21 @@ func (r *Repository) AddMessages(ctx context.Context, tx bun.Tx, messages []*cor
 	return nil
 }
 
+func (r *Repository) GetMessages(ctx context.Context, hashes [][]byte) ([]*core.Message, error) {
+	var ret []*core.Message
+
+	err := r.pg.NewSelect().Model(&ret).
+		Relation("SrcState").
+		Relation("DstState").
+		Where("hash IN (?)", bun.In(hashes)).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return ret, nil
+}
+
 func (r *Repository) GetMessage(ctx context.Context, hash []byte) (*core.Message, error) {
 	var ret core.Message
 

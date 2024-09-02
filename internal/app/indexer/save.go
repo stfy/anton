@@ -147,8 +147,62 @@ func (s *Service) addMessage(msg *core.Message, uniqMsg map[string]*core.Message
 	}
 }
 
-func (s *Service) uniqMessages(transactions []*core.Transaction) []*core.Message {
-	defer app.TimeTrack(time.Now(), "uniqMessages")
+func (s *Service) getMessagesSource(ctx context.Context, messages []*core.Message) (valid []*core.Message) {
+	var checkSourceHashes [][]byte
+	for _, msg := range messages {
+		checkSourceHashes = append(checkSourceHashes, msg.Hash)
+	}
+
+	sources, err := s.msgRepo.GetMessages(context.Background(), checkSourceHashes)
+	if err != nil {
+		panic(errors.Wrap(err, "get messages"))
+	}
+
+	messageSourceMap := make(map[string]*core.Message)
+	for _, msg := range sources {
+		messageSourceMap[string(msg.Hash)] = msg
+	}
+
+	totalBlocks := -1
+	for _, msg := range messages {
+		if source, ok := messageSourceMap[string(msg.Hash)]; ok {
+			msg.SrcTxLT, msg.SrcShard, msg.SrcBlockSeqNo, msg.SrcState =
+				source.SrcTxLT, source.SrcShard, source.SrcBlockSeqNo, source.SrcState
+			valid = append(valid, msg)
+			continue
+		}
+
+		// some masterchain messages does not have source
+		if msg.SrcAddress.Workchain() == -1 && msg.DstAddress.Workchain() == -1 {
+			valid = append(valid, msg)
+			continue
+		}
+
+		if totalBlocks == -1 {
+			totalBlocks, err = s.blockRepo.CountMasterBlocks(ctx)
+			if err != nil {
+				panic(errors.Wrap(err, "count masterchain blocks"))
+			}
+		}
+		if totalBlocks < 1000 {
+			log.Debug().
+				Hex("dst_tx_hash", msg.DstTxHash).
+				Int32("dst_workchain", msg.DstWorkchain).Int64("dst_shard", msg.DstShard).Uint32("dst_block_seq_no", msg.DstBlockSeqNo).
+				Str("src_address", msg.SrcAddress.String()).Str("dst_address", msg.DstAddress.String()).
+				Msg("cannot find source message")
+			continue
+		}
+
+		log.Error().
+			Err(fmt.Errorf("unknown source message with dst tx hash %x on block (%d, %x, %d) from %s to %s",
+				msg.DstTxHash, msg.DstWorkchain, msg.DstShard, msg.DstBlockSeqNo, msg.SrcAddress.String(), msg.DstAddress.String())).Msg("unknown source")
+	}
+
+	return valid
+}
+
+func (s *Service) uniqMessages(ctx context.Context, transactions []*core.Transaction) []*core.Message {
+	defer app.TimeTrack(time.Now(), "uniqMessages(%d)", len(transactions))
 
 	var ret []*core.Message
 
@@ -165,56 +219,20 @@ func (s *Service) uniqMessages(transactions []*core.Transaction) []*core.Message
 		}
 	}
 
+	var checkSourceMessages []*core.Message
 	for _, msg := range uniqMsg {
 		if msg.Type == core.Internal && (msg.SrcTxLT == 0 && msg.DstTxLT != 0) {
-			// unknown source transaction, fill in source contract state
-			source, err := s.msgRepo.GetMessage(context.Background(), msg.Hash)
-			if err != nil && !errors.Is(err, core.ErrNotFound) {
-				panic(errors.Wrap(err, "get message error"))
-			}
-			// some masterchain messages does not have source
-			if errors.Is(err, core.ErrNotFound) && !(msg.SrcAddress.Workchain() == -1 && msg.DstAddress.Workchain() == -1) {
-				log.Error().
-					Err(fmt.Errorf("unknown source message with dst tx hash %x on block (%d, %x, %d) from %s to %s",
-						msg.DstTxHash, msg.DstWorkchain, msg.DstShard, msg.DstBlockSeqNo, msg.SrcAddress.String(), msg.DstAddress.String())).Msg("unknown source")
-
-				continue
-			}
-			if err == nil {
-				msg.SrcTxLT, msg.SrcShard, msg.SrcBlockSeqNo, msg.SrcState =
-					source.SrcTxLT, source.SrcShard, source.SrcBlockSeqNo, source.SrcState
-			}
+			checkSourceMessages = append(checkSourceMessages, msg)
+			continue
 		}
 
 		ret = append(ret, msg)
 	}
 
-	return ret
+	return append(ret, s.getMessagesSource(ctx, checkSourceMessages)...)
 }
 
 var lastLog = time.Now()
-
-func (s *Service) saveBlock(master *core.Block) {
-	defer app.TimeTrack(time.Now(), "saveBlock(%d)", master.SeqNo)
-
-	newBlocks := append([]*core.Block{master}, master.Shards...)
-
-	var newTransactions []*core.Transaction
-	for i := range newBlocks {
-		newTransactions = append(newTransactions, newBlocks[i].Transactions...)
-	}
-
-	if err := s.insertData(s.uniqAccounts(newTransactions), s.uniqMessages(newTransactions), newTransactions, newBlocks); err != nil {
-		panic(err)
-	}
-
-	lvl := log.Debug()
-	if time.Since(lastLog) > 10*time.Minute {
-		lvl = log.Info()
-		lastLog = time.Now()
-	}
-	lvl.Uint32("last_inserted_seq", master.SeqNo).Msg("inserted new block")
-}
 
 func (s *Service) saveBlocks(ctx context.Context, masterBlocks []*core.Block) {
 	var (
@@ -240,7 +258,7 @@ func (s *Service) saveBlocks(ctx context.Context, masterBlocks []*core.Block) {
 	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 
-	if err := s.insertData(s.uniqAccounts(newTransactions), s.uniqMessages(newTransactions), newTransactions, newBlocks); err != nil {
+	if err := s.insertData(s.uniqAccounts(newTransactions), s.uniqMessages(ctx, newTransactions), newTransactions, newBlocks); err != nil {
 		panic(err)
 	}
 
@@ -284,26 +302,3 @@ func (s *Service) saveBlocksLoop(results <-chan *core.Block) {
 		}
 	}
 }
-
-//func (s *Service) saveBlocksLoop(results <-chan *core.Block) {
-//	t := time.NewTicker(100 * time.Millisecond)
-//	defer t.Stop()
-//
-//	for s.running() {
-//		var b *core.Block
-//
-//		select {
-//		case b = <-results:
-//		case <-t.C:
-//			continue
-//		}
-//
-//		log.Debug().
-//			Uint32("master_seq_no", b.SeqNo).
-//			Int("master_tx", len(b.Transactions)).
-//			Int("shards", len(b.Shards)).
-//			Msg("new master")
-//
-//		s.saveBlock(b)
-//	}
-//}
