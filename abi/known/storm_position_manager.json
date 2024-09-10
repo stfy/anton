@@ -853,6 +853,49 @@
         "op_name": "position_manager::order_canceled",
         "op_code": "0x69d08679",
         "body": []
+      },
+
+      {
+        "op_name": "position_manager::order_created_v2",
+        "op_code": "0x80f4c55b",
+        "body": [
+          {
+            "name": "order_type",
+            "tlb_type": "## 4",
+            "format": "uint8"
+          },
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          }
+        ]
+      },
+      {
+        "op_name": "position_manager::order_canceled_v2",
+        "op_code": "0x7db85c00",
+        "body": [
+          {
+            "name": "order_type",
+            "tlb_type": "## 4",
+            "format": "uint8"
+          },
+          {
+            "name": "order_index",
+            "tlb_type": "## 3",
+            "format": "uint8"
+          },
+          {
+            "name": "direction",
+            "tlb_type": "## 1",
+            "format": "uint8"
+          }
+        ]
       }
     ],
     "get_methods": [
