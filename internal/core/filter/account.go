@@ -57,5 +57,6 @@ type AccountInterfaceReq struct {
 type AccountRepository interface {
 	FilterLabels(context.Context, *LabelsReq) (*LabelsRes, error)
 	FilterAccounts(context.Context, *AccountsReq) (*AccountsRes, error)
+	FilterNftAccounts(context.Context, *AccountsReq) (*AccountsRes, error)
 	FilterLatestAccounts(context.Context, *AccountLatestReq) (*AccountsRes, error)
 }

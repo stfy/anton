@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/internal/app"
 	"github.com/tonindexer/anton/internal/core/filter"
@@ -56,6 +57,60 @@ func (c *StormController) GetPositionManagers(ctx *gin.Context) {
 	}
 
 	app.TimeTrack(ts, "load pm")
+
+	ctx.IndentedJSON(http.StatusOK, ret)
+}
+
+func (c *StormController) GetNftItems(ctx *gin.Context) {
+	var req filter.AccountsReq
+	err := ctx.ShouldBindQuery(&req)
+	if err != nil {
+		paramErr(ctx, "account_filter", err)
+		return
+	}
+
+	req.OwnerAddress, err = unmarshalAddress(ctx.Query("owner_address"))
+	if err != nil {
+		paramErr(ctx, "owner_address", err)
+		return
+	}
+	req.MinterAddress, err = unmarshalAddress(ctx.Query("minter_address"))
+	if err != nil {
+		paramErr(ctx, "minter_address", err)
+		return
+	}
+
+	if req.MinterAddress == nil {
+		paramErr(ctx, "minter_address", errors.New("minter address should be provided"))
+		return
+	}
+
+	ret, err := c.svc.FilterNftAccounts(ctx, &filter.AccountsReq{
+		LatestState:   true,
+		ContractTypes: []abi.ContractName{"nft_item"},
+		OwnerAddress:  req.OwnerAddress,
+		MinterAddress: req.MinterAddress,
+		Columns: []string{
+			"address",
+			"data_hash",
+			"updated_at",
+			"last_tx_lt",
+			"last_tx_hash",
+			"shard",
+			"workchain",
+			"minter_address",
+			"owner_address",
+			"data",
+			"block_seq_no",
+			"content_uri",
+			"types",
+			"executed_get_methods",
+		},
+	})
+	if err != nil {
+		internalErr(ctx, err)
+		return
+	}
 
 	ctx.IndentedJSON(http.StatusOK, ret)
 }

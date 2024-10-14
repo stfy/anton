@@ -94,8 +94,8 @@ func (s *Server) RegisterRoutes(t QueryController) {
 func (s *Server) RegisterV1Routes(t *StormController) {
 	v1 := s.router.Group(v1Path)
 
+	v1.GET("/storm/nft_items", t.GetNftItems)
 	v1.GET("/storm/position_managers", t.GetPositionManagers)
-
 	v1.GET("/swagger/*any", ginSwagger.WrapHandler(
 		swaggerFiles.Handler,
 		ginSwagger.URL(v1Path+"/swagger/doc.json"),

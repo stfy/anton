@@ -8,6 +8,7 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/go-clickhouse/ch"
+	"slices"
 	"strings"
 
 	"github.com/tonindexer/anton/internal/core"
@@ -180,6 +181,43 @@ func (r *Repository) filterLatestAccountStates(ctx context.Context, f *filter.Ac
 	return ret, err
 }
 
+func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.AccountsReq) (ret []*core.AccountState, err error) {
+	if cached, _ := cache.GetNftCollectionCached(ctx, r.rs, f.MinterAddress); !cached {
+		// do cache all collection items
+		_, err := r.filterAccountStates(ctx,
+			&filter.AccountsReq{
+				LatestState:   true,
+				MinterAddress: f.MinterAddress,
+				Columns:       f.Columns,
+				Order:         "ASC",
+				Limit:         1_000_000_000,
+			},
+			1_000_000_000,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if _, err = cache.SetNftCollectionAsCached(ctx, r.rs, f.MinterAddress); err != nil {
+			return nil, err
+		}
+	}
+
+	ret, err = cache.GetNftCollectionItems(ctx, r.rs, f.MinterAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	if f.OwnerAddress != nil {
+		return slices.DeleteFunc(ret, func(state *core.AccountState) bool {
+			return state.OwnerAddress == nil || state.OwnerAddress.String() != f.OwnerAddress.String()
+		}), nil
+	}
+
+	return ret, err
+}
+
 func (r *Repository) countAccountStates(ctx context.Context, f *filter.AccountsReq) (int, error) {
 	q := r.ch.NewSelect().Model((*core.AccountState)(nil))
 
@@ -224,6 +262,20 @@ func (r *Repository) FilterAccounts(ctx context.Context, f *filter.AccountsReq) 
 	}
 
 	res.Rows, err = r.filterAccountStates(ctx, f, res.Total)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+func (r *Repository) FilterNftAccounts(ctx context.Context, req *filter.AccountsReq) (*filter.AccountsRes, error) {
+	var (
+		res = new(filter.AccountsRes)
+		err error
+	)
+
+	res.Rows, err = r.filterNftItemsAccountStates(ctx, req)
 	if err != nil {
 		return res, err
 	}

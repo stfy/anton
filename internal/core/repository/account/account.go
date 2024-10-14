@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/redis/rueidis"
+	cache "github.com/tonindexer/anton/internal/app/latest"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -209,6 +210,10 @@ func (r *Repository) AddAccountStates(ctx context.Context, tx bun.Tx, accounts [
 		if addrTxLT[a.Address] < a.LastTxLT {
 			addrTxLT[a.Address] = a.LastTxLT
 		}
+
+		if err := cache.AddAccount(ctx, r.rs, a); err != nil {
+			return err
+		}
 	}
 
 	for a, lt := range addrTxLT {
@@ -226,11 +231,6 @@ func (r *Repository) AddAccountStates(ctx context.Context, tx bun.Tx, accounts [
 			return errors.Wrapf(err, "cannot set latest state for %s", &a)
 		}
 	}
-
-	//_, err := r.ch.NewInsert().Model(&accounts).Exec(ctx)
-	//if err != nil {
-	//	return err
-	//}
 
 	return nil
 }

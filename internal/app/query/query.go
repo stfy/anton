@@ -229,3 +229,7 @@ func (s *Service) AggregateMessages(ctx context.Context, req *aggregate.Messages
 func (s *Service) AggregateMessagesHistory(ctx context.Context, req *history.MessagesReq) (*history.MessagesRes, error) {
 	return s.msgRepo.AggregateMessagesHistory(ctx, req)
 }
+
+func (s *Service) FilterNftAccounts(ctx context.Context, req *filter.AccountsReq) (*filter.AccountsRes, error) {
+	return s.accountRepo.FilterNftAccounts(ctx, req)
+}
