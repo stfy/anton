@@ -9,7 +9,6 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/go-clickhouse/ch"
-	"slices"
 	"strings"
 
 	"github.com/tonindexer/anton/internal/core"
@@ -170,7 +169,7 @@ func (r *Repository) filterLatestAccountStates(ctx context.Context, f *filter.Ac
 }
 
 func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.AccountsReq) (ret []*core.AccountState, err error) {
-	if cached, _ := cache.GetNftCollectionCached(ctx, r.rs, f.MinterAddress); !cached {
+	if cached, _ := cache.GetNftCollectionCached(ctx, r.rs, f.MinterAddress, f.OwnerAddress); !cached {
 		// do cache all collection items
 		cItems, err := r.filterAccountStates(ctx,
 			&filter.AccountsReq{
@@ -194,20 +193,14 @@ func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.
 			}
 		}
 
-		if _, err = cache.SetNftCollectionAsCached(ctx, r.rs, f.MinterAddress); err != nil {
+		if _, err = cache.SetNftCollectionAsCached(ctx, r.rs, f.MinterAddress, f.OwnerAddress); err != nil {
 			return nil, err
 		}
 	}
 
-	ret, err = cache.GetNftCollectionItems(ctx, r.rs, f.MinterAddress)
+	ret, err = cache.GetNftCollectionItems(ctx, r.rs, f.MinterAddress, f.OwnerAddress)
 	if err != nil {
 		return nil, err
-	}
-
-	if f.OwnerAddress != nil {
-		return slices.DeleteFunc(ret, func(state *core.AccountState) bool {
-			return state.OwnerAddress == nil || state.OwnerAddress.String() != f.OwnerAddress.String()
-		}), nil
 	}
 
 	return ret, err

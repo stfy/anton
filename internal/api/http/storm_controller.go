@@ -85,6 +85,11 @@ func (c *StormController) GetNftItems(ctx *gin.Context) {
 		return
 	}
 
+	if req.OwnerAddress == nil {
+		paramErr(ctx, "owner_address", errors.New("owner address should be provided"))
+		return
+	}
+
 	ret, err := c.svc.FilterNftAccounts(ctx, &filter.AccountsReq{
 		LatestState:   true,
 		ContractTypes: []abi.ContractName{"nft_item"},

@@ -53,10 +53,14 @@ func AddAccount(ctx context.Context, client rueidis.Client, acc *core.AccountSta
 				return err
 			}
 
+			if acc.OwnerAddress == nil {
+				continue
+			}
+
 			cmd := client.
 				B().
 				Hset().
-				Key(nftCollectionKey(acc.MinterAddress)).
+				Key(fmt.Sprintf("%s/%s", nftCollectionKey(acc.MinterAddress), acc.OwnerAddress)).
 				FieldValue().
 				FieldValue(acc.Address.String(), string(v)).
 				Build()
@@ -71,10 +75,10 @@ func AddAccount(ctx context.Context, client rueidis.Client, acc *core.AccountSta
 	return nil
 }
 
-func SetNftCollectionAsCached(ctx context.Context, client rueidis.Client, address *addr.Address) (bool, error) {
+func SetNftCollectionAsCached(ctx context.Context, client rueidis.Client, address *addr.Address, owner *addr.Address) (bool, error) {
 	defer app.TimeTrack(time.Now(), "cache.GetLatestAccounts")
 
-	cmd := client.B().Setex().Key(fmt.Sprintf("cached_nft_collection/%s", address)).Seconds(6 * 5).Value(address.String()).Build()
+	cmd := client.B().Setex().Key(fmt.Sprintf("cached_nft_collection/%s/%s", address, owner)).Seconds(60).Value(address.String()).Build()
 	res := client.Do(ctx, cmd)
 
 	if err := res.Error(); err != nil {
@@ -84,10 +88,10 @@ func SetNftCollectionAsCached(ctx context.Context, client rueidis.Client, addres
 	return true, nil
 }
 
-func GetNftCollectionCached(ctx context.Context, client rueidis.Client, address *addr.Address) (bool, error) {
+func GetNftCollectionCached(ctx context.Context, client rueidis.Client, address *addr.Address, owner *addr.Address) (bool, error) {
 	defer app.TimeTrack(time.Now(), "cache.GetLatestAccounts")
 
-	cmd := client.B().Ttl().Key(fmt.Sprintf("cached_nft_collection/%s", address)).Build()
+	cmd := client.B().Ttl().Key(fmt.Sprintf("cached_nft_collection/%s/%s", address, owner)).Build()
 	res := client.Do(ctx, cmd)
 
 	ttl, err := res.AsInt64()
@@ -103,11 +107,11 @@ func GetNftCollectionCached(ctx context.Context, client rueidis.Client, address 
 	}
 }
 
-func GetNftCollectionItems(ctx context.Context, client rueidis.Client, address *addr.Address) ([]*core.AccountState, error) {
+func GetNftCollectionItems(ctx context.Context, client rueidis.Client, address *addr.Address, owner *addr.Address) ([]*core.AccountState, error) {
 	defer app.TimeTrack(time.Now(), "cache.GetLatestAccounts")
 
 	result := make([]*core.AccountState, 0)
-	cmd := client.B().Hgetall().Key(nftCollectionKey(address)).Build()
+	cmd := client.B().Hgetall().Key(fmt.Sprintf("%s/%s", nftCollectionKey(address), owner)).Build()
 
 	res := client.Do(ctx, cmd)
 	if err := res.Error(); err != nil {
