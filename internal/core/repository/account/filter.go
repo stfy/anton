@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/tonindexer/anton/abi"
 	cache "github.com/tonindexer/anton/internal/app/latest"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
@@ -173,6 +174,7 @@ func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.
 		// do cache all collection items
 		cItems, err := r.filterAccountStates(ctx,
 			&filter.AccountsReq{
+				ContractTypes: []abi.ContractName{"nft_item"},
 				LatestState:   true,
 				MinterAddress: f.MinterAddress,
 				Columns:       f.Columns,
