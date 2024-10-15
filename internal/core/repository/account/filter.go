@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/tonindexer/anton/abi"
 	"github.com/tonindexer/anton/internal/app"
 	cache "github.com/tonindexer/anton/internal/app/latest"
@@ -176,6 +177,7 @@ func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.
 	cached, _ := cache.GetNftCollectionCached(ctx, r.rs, f.MinterAddress, f.OwnerAddress)
 
 	if f.ClearCache || !cached {
+		log.Info().Any("cache_miss", true).Msg("filterNftItemsAccountStates")
 		// do cache all collection items
 		cItems, err := r.filterAccountStates(ctx,
 			&filter.AccountsReq{
