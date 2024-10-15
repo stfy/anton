@@ -171,7 +171,7 @@ func (r *Repository) filterLatestAccountStates(ctx context.Context, f *filter.Ac
 func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.AccountsReq) (ret []*core.AccountState, err error) {
 	if cached, _ := cache.GetNftCollectionCached(ctx, r.rs, f.MinterAddress); !cached {
 		// do cache all collection items
-		_, err := r.filterAccountStates(ctx,
+		cItems, err := r.filterAccountStates(ctx,
 			&filter.AccountsReq{
 				LatestState:   true,
 				MinterAddress: f.MinterAddress,
@@ -184,6 +184,12 @@ func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.
 
 		if err != nil {
 			return nil, err
+		}
+
+		for i := range cItems {
+			if err := cache.AddAccount(ctx, r.rs, cItems[i]); err != nil {
+				fmt.Println("redis err", err)
+			}
 		}
 
 		if _, err = cache.SetNftCollectionAsCached(ctx, r.rs, f.MinterAddress); err != nil {
