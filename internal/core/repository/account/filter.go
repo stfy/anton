@@ -198,6 +198,8 @@ func (r *Repository) filterNftItemsAccountStates(ctx context.Context, f *filter.
 
 		func() {
 			defer app.TimeTrack(time.Now(), "add account states to cache")
+			_ = cache.ClearCacheNftItems(ctx, r.rs, f.MinterAddress, f.OwnerAddress)
+
 			for i := range cItems {
 				if err := cache.AddAccount(ctx, r.rs, cItems[i]); err != nil {
 					fmt.Println("redis err", err)

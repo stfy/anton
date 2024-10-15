@@ -44,6 +44,23 @@ func getNftItemId(state *core.AccountState) (int64, error) {
 	}
 }
 
+func ClearCacheNftItems(ctx context.Context, client rueidis.Client, address *addr.Address, owner *addr.Address) error {
+	cmd := client.
+		B().
+		Del().
+		Key(fmt.Sprintf("%s/%s", nftCollectionKey(address), owner)).Build()
+
+	clearCached := client.B().Del().Key(fmt.Sprintf("cached_nft_collection/%s/%s", address, owner)).Build()
+
+	for _, resp := range client.DoMulti(ctx, cmd, clearCached) {
+		if err := resp.Error(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func AddAccount(ctx context.Context, client rueidis.Client, acc *core.AccountState) error {
 	for _, t := range acc.Types {
 		switch t {
