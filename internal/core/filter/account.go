@@ -25,6 +25,7 @@ type AccountsReq struct {
 	LatestState bool            `form:"latest"`
 	// only load latest states in cache
 	ForceCache bool `form:"force_cache"`
+	ClearCache bool `form:"clear_cache"`
 
 	// contract data filter
 	ContractTypes []abi.ContractName `form:"interface"`
