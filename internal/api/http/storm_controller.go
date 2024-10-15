@@ -92,6 +92,7 @@ func (c *StormController) GetNftItems(ctx *gin.Context) {
 
 	ret, err := c.svc.FilterNftAccounts(ctx, &filter.AccountsReq{
 		LatestState:   true,
+		ClearCache:    req.ClearCache,
 		ContractTypes: []abi.ContractName{"nft_item"},
 		OwnerAddress:  req.OwnerAddress,
 		MinterAddress: req.MinterAddress,
