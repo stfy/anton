@@ -84,11 +84,6 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 		latest              []*core.LatestAccountState
 	)
 
-	//if f.ForceCache && f.LatestState {
-	//	// only 1 type allowed
-	//	return cache.GetLatestAccounts(ctx, r.rs, f.ContractTypes[0])
-	//}
-
 	// choose table to filter states by
 	// and optionally join account data
 	if f.LatestState {
@@ -152,14 +147,6 @@ func (r *Repository) filterAccountStates(ctx context.Context, f *filter.Accounts
 	if f.LatestState {
 		for _, a := range latest {
 			ret = append(ret, a.AccountState)
-		}
-	}
-
-	if f.LatestState {
-		for i := range ret {
-			if err := cache.AddAccount(ctx, r.rs, ret[i]); err != nil {
-				fmt.Println("redis err", err)
-			}
 		}
 	}
 
